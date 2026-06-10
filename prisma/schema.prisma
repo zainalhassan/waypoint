@@ -181,8 +181,8 @@ model StageEvent {
   toStageId   String
   occurredAt  DateTime @default(now())
   item        Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  fromStage   Stage?   @relation("FromStage", fields: [fromStageId], references: [id])
-  toStage     Stage    @relation("ToStage", fields: [toStageId], references: [id])
+  fromStage   Stage?   @relation("FromStage", fields: [fromStageId], references: [id], onDelete: SetNull)
+  toStage     Stage    @relation("ToStage", fields: [toStageId], references: [id], onDelete: Cascade)
 
   @@index([itemId])
   @@index([toStageId])

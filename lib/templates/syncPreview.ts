@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { computeStageDiff } from "@/lib/templates/stageDiff";
 import type { RemovedStageImpact, StageSnapshot, SyncPreview } from "@/lib/templates/syncTypes";
 
 function toSnapshot(stage: {
@@ -17,16 +18,6 @@ function toSnapshot(stage: {
     isTerminal: stage.isTerminal,
     color: stage.color,
   };
-}
-
-function stageChanged(a: StageSnapshot, b: StageSnapshot) {
-  return (
-    a.name !== b.name ||
-    a.sortOrder !== b.sortOrder ||
-    a.isEntry !== b.isEntry ||
-    a.isTerminal !== b.isTerminal ||
-    a.color !== b.color
-  );
 }
 
 async function loadLinkedTemplate(copyId: string, userId: string) {
@@ -50,24 +41,7 @@ export async function buildSyncPreview(
 
   const currentStages = copy.stages.map(toSnapshot);
   const sourceStages = copy.forkedFrom.stages.map(toSnapshot);
-
-  const currentBySlug = new Map(currentStages.map((s) => [s.slug, s]));
-  const sourceBySlug = new Map(sourceStages.map((s) => [s.slug, s]));
-
-  const added = sourceStages.filter((s) => !currentBySlug.has(s.slug));
-  const removed = currentStages.filter((s) => !sourceBySlug.has(s.slug));
-  const unchanged: StageSnapshot[] = [];
-  const updated: SyncPreview["updated"] = [];
-
-  for (const source of sourceStages) {
-    const current = currentBySlug.get(source.slug);
-    if (!current) continue;
-    if (stageChanged(current, source)) {
-      updated.push({ slug: source.slug, before: current, after: source });
-    } else {
-      unchanged.push(source);
-    }
-  }
+  const { added, removed, updated, unchanged } = computeStageDiff(currentStages, sourceStages);
 
   const pipelines = await prisma.pipeline.findMany({
     where: { userTemplateId: copyId, userId },

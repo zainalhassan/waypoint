@@ -1,0 +1,39 @@
+import { describe, expect, it } from "vitest";
+import { computePipelineStats } from "@/lib/sankey/stats";
+import { item, stage } from "../helpers/factories";
+
+describe("computePipelineStats", () => {
+  it("computes job search conversion rate", () => {
+    const applied = stage({ slug: "applied", name: "Applied" });
+    const interview = stage({ slug: "interview", name: "Interview" });
+    const rejected = stage({ slug: "rejected", name: "Rejected", isTerminal: true });
+
+    const stats = computePipelineStats(
+      [
+        item({ currentStage: applied }),
+        item({ currentStage: interview }),
+        item({ currentStage: rejected }),
+      ],
+      "JOB_SEARCH",
+    );
+
+    expect(stats.total).toBe(3);
+    expect(stats.active).toBe(2);
+    expect(stats.terminal).toBe(1);
+    expect(stats.conversionRate).toBe(33);
+    expect(stats.conversionLabel).toBe("Reached interview");
+  });
+
+  it("computes investment active holdings rate", () => {
+    const holding = stage({ slug: "holding", name: "Holding" });
+    const researching = stage({ slug: "researching", name: "Researching" });
+
+    const stats = computePipelineStats(
+      [item({ currentStage: holding }), item({ currentStage: researching })],
+      "INVESTMENTS",
+    );
+
+    expect(stats.conversionLabel).toBe("Active holdings");
+    expect(stats.conversionRate).toBe(50);
+  });
+});

@@ -126,6 +126,10 @@ export async function updateItemStage(
   const newStage = pipeline.stages.find((s) => s.id === parsed.data.stageId);
   if (!newStage) return { error: "Invalid stage" };
 
+  if (newStage.isArchived) {
+    return { error: "Cannot move items to a removed stage" };
+  }
+
   if (item.currentStageId === newStage.id) {
     return { error: "Item is already in this stage" };
   }

@@ -9,6 +9,17 @@ export type SankeyData = {
 };
 
 const ENTRY_LABEL = "Started";
+const LINK_KEY_SEP = "\u001f";
+
+function linkKey(source: string, target: string) {
+  return `${source}${LINK_KEY_SEP}${target}`;
+}
+
+function parseLinkKey(key: string): [string, string] {
+  const idx = key.indexOf(LINK_KEY_SEP);
+  if (idx === -1) return [key, ""];
+  return [key.slice(0, idx), key.slice(idx + LINK_KEY_SEP.length)];
+}
 
 export function buildSankeyData(
   stages: Stage[],
@@ -22,7 +33,7 @@ export function buildSankeyData(
       ? (stageById.get(event.fromStageId)?.name ?? "Unknown")
       : ENTRY_LABEL;
     const target = stageById.get(event.toStageId)?.name ?? "Unknown";
-    const key = `${source}→${target}`;
+    const key = linkKey(source, target);
     linkCounts.set(key, (linkCounts.get(key) ?? 0) + 1);
   }
 
@@ -35,7 +46,7 @@ export function buildSankeyData(
 
   const links: SankeyLink[] = [];
   for (const [key, value] of linkCounts) {
-    const [source, target] = key.split("→");
+    const [source, target] = parseLinkKey(key);
     links.push({ source, target, value });
     nodeNames.add(source);
     nodeNames.add(target);
