@@ -43,7 +43,11 @@ export default async function PipelinePage({
         </div>
       </div>
 
-      <ItemTable pipelineId={pipelineId} items={pipeline.items} />
+      <ItemTable
+        pipelineId={pipelineId}
+        template={pipeline.template}
+        items={pipeline.items}
+      />
     </div>
   );
 }

@@ -5,9 +5,10 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getMetadataSchema } from "@/lib/items/metadataSchemas";
 import { prisma } from "@/lib/prisma";
+import { getUserDefaultCurrency } from "@/lib/user";
 import { createItemSchema, updateItemStageSchema } from "@/lib/validations";
 
-export type ActionState = { error?: string };
+export type ActionState = { error?: string; success?: boolean };
 
 async function requirePipeline(pipelineId: string, userId: string) {
   return prisma.pipeline.findFirst({
@@ -39,11 +40,23 @@ export async function createItem(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
+  const defaultCurrency = await getUserDefaultCurrency(session.user.id);
+
   const metadataInput: Record<string, unknown> = {};
   for (const [key, value] of formData.entries()) {
     if (key.startsWith("metadata.")) {
       metadataInput[key.replace("metadata.", "")] = value;
     }
+  }
+
+  if (!metadataInput.salaryCurrency) {
+    metadataInput.salaryCurrency = defaultCurrency;
+  }
+  if (!metadataInput.dealCurrency) {
+    metadataInput.dealCurrency = defaultCurrency;
+  }
+  if (!metadataInput.currency) {
+    metadataInput.currency = defaultCurrency;
   }
 
   const metadataSchema = getMetadataSchema(pipeline.template);
@@ -134,5 +147,5 @@ export async function updateItemStage(
   revalidatePath(`/pipelines/${pipelineId}`);
   revalidatePath(`/pipelines/${pipelineId}/items/${itemId}`);
   revalidatePath(`/pipelines/${pipelineId}/analytics`);
-  return {};
+  return { success: true };
 }

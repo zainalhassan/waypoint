@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { getPipelineForUser } from "@/lib/pipelines/createPipelineFromTemplate";
 import { buildSankeyData } from "@/lib/sankey/buildSankeyData";
 import { computePipelineStats } from "@/lib/sankey/stats";
+import { getUserDefaultCurrency } from "@/lib/user";
+import { InvestmentBreakdown } from "@/components/InvestmentBreakdown";
 import { SankeyChart } from "@/components/SankeyChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -27,6 +29,8 @@ export default async function AnalyticsPage({
 
   const sankeyData = buildSankeyData(pipeline.stages, events);
   const stats = computePipelineStats(pipeline.items, pipeline.template);
+  const defaultCurrency = await getUserDefaultCurrency(session!.user!.id);
+  const isInvestments = pipeline.template === "INVESTMENTS";
 
   return (
     <div className="space-y-6">
@@ -39,6 +43,10 @@ export default async function AnalyticsPage({
         </Link>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight">Analytics</h1>
       </div>
+
+      {isInvestments && (
+        <InvestmentBreakdown items={pipeline.items} defaultCurrency={defaultCurrency} />
+      )}
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>

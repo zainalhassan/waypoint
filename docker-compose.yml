@@ -33,7 +33,7 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-      - /app/.next
+      # Note: do not mount a persistent .next volume — it caches stale builds on Windows
     depends_on:
       db:
         condition: service_healthy

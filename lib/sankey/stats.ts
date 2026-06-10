@@ -32,6 +32,10 @@ export function computePipelineStats(
       successSlugs = ["won"];
       conversionLabel = "Win rate";
       break;
+    case "INVESTMENTS":
+      successSlugs = ["holding", "sold"];
+      conversionLabel = "Active holdings";
+      break;
     default:
       successSlugs = ["complete"];
       conversionLabel = "Completion rate";

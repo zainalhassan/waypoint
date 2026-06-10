@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { toast } from "sonner";
 import { updateItemStage, type ActionState } from "@/actions/items";
 import type { Stage } from "@prisma/client";
 import { Button } from "@/components/ui/button";
@@ -25,10 +26,16 @@ export function StageUpdateForm({
   const boundAction = updateItemStage.bind(null, pipelineId, itemId);
   const [state, formAction, pending] = useActionState(boundAction, initialState);
 
+  useEffect(() => {
+    if (state.success) {
+      toast.success("Stage updated");
+    }
+  }, [state.success]);
+
   return (
     <form action={formAction} className="space-y-3">
       <div className="space-y-2">
-        <Label htmlFor="stageId">Update stage</Label>
+        <Label htmlFor="stageId">Current stage</Label>
         <select
           id="stageId"
           name="stageId"
@@ -48,7 +55,7 @@ export function StageUpdateForm({
       </div>
       {state.error && <p className="text-sm text-destructive">{state.error}</p>}
       <Button type="submit" disabled={pending}>
-        {pending ? "Updating…" : "Update stage"}
+        {pending ? "Updating…" : "Save stage"}
       </Button>
     </form>
   );

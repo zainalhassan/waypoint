@@ -10,19 +10,109 @@ enum PipelineTemplate {
   JOB_SEARCH
   GRAD_SCHOOL
   SALES
+  INVESTMENTS
   CUSTOM
 }
 
 model User {
-  id            String     @id @default(cuid())
-  name          String?
-  email         String     @unique
-  emailVerified DateTime?
-  passwordHash  String?
-  image         String?
-  pipelines     Pipeline[]
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  id               String             @id @default(cuid())
+  name             String?
+  email            String             @unique
+  emailVerified    DateTime?
+  passwordHash     String?
+  image            String?
+  defaultCurrency  String             @default("USD")
+  pipelines        Pipeline[]
+  userTemplates    UserTemplate[]
+  templateLikes    TemplateLike[]
+  templateRatings  TemplateRating[]
+  templateComments TemplateComment[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+}
+
+model UserTemplate {
+  id           String              @id @default(cuid())
+  userId       String
+  name         String
+  description  String?
+  isPublic     Boolean             @default(false)
+  publishedAt  DateTime?
+  forkedFromId String?
+  likeCount    Int                 @default(0)
+  copyCount    Int                 @default(0)
+  ratingSum    Int                 @default(0)
+  ratingCount  Int                 @default(0)
+  commentCount Int                 @default(0)
+  stages       UserTemplateStage[]
+  likes        TemplateLike[]
+  ratings      TemplateRating[]
+  comments     TemplateComment[]
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  forkedFrom   UserTemplate?       @relation("TemplateForks", fields: [forkedFromId], references: [id], onDelete: SetNull)
+  forks        UserTemplate[]      @relation("TemplateForks")
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  @@index([userId])
+  @@index([isPublic, publishedAt])
+  @@index([isPublic, copyCount])
+  @@index([isPublic, likeCount])
+  @@index([isPublic, ratingCount, ratingSum])
+}
+
+model UserTemplateStage {
+  id             String       @id @default(cuid())
+  userTemplateId String
+  name           String
+  slug           String
+  sortOrder      Int
+  isEntry        Boolean      @default(false)
+  isTerminal     Boolean      @default(false)
+  color          String?
+  userTemplate   UserTemplate @relation(fields: [userTemplateId], references: [id], onDelete: Cascade)
+
+  @@unique([userTemplateId, slug])
+  @@index([userTemplateId, sortOrder])
+}
+
+model TemplateLike {
+  id             String       @id @default(cuid())
+  userId         String
+  userTemplateId String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userTemplate   UserTemplate @relation(fields: [userTemplateId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+
+  @@unique([userId, userTemplateId])
+  @@index([userTemplateId])
+}
+
+model TemplateRating {
+  id             String       @id @default(cuid())
+  userId         String
+  userTemplateId String
+  rating         Int
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userTemplate   UserTemplate @relation(fields: [userTemplateId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([userId, userTemplateId])
+  @@index([userTemplateId])
+}
+
+model TemplateComment {
+  id             String       @id @default(cuid())
+  userId         String
+  userTemplateId String
+  content        String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userTemplate   UserTemplate @relation(fields: [userTemplateId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([userTemplateId, createdAt])
 }
 
 model Pipeline {

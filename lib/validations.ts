@@ -1,9 +1,13 @@
 import { z } from "zod";
+import { CURRENCIES } from "@/lib/currencies";
+
+const currencyCodes = CURRENCIES.map((c) => c.code) as [string, ...string[]];
 
 const pipelineTemplateEnum = z.enum([
   "JOB_SEARCH",
   "GRAD_SCHOOL",
   "SALES",
+  "INVESTMENTS",
   "CUSTOM",
 ]);
 
@@ -20,7 +24,7 @@ export const loginSchema = z.object({
 
 export const createPipelineSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
-  template: pipelineTemplateEnum,
+  template: pipelineTemplateEnum.optional(),
 });
 
 export const createItemSchema = z.object({
@@ -31,6 +35,13 @@ export const createItemSchema = z.object({
   startedAt: z.string().optional(),
 });
 
+export const updateItemSchema = createItemSchema;
+
 export const updateItemStageSchema = z.object({
   stageId: z.string().min(1),
+});
+
+export const updateSettingsSchema = z.object({
+  name: z.string().min(1, "Name is required").max(100),
+  defaultCurrency: z.enum(currencyCodes),
 });

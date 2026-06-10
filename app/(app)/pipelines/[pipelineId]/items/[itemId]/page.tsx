@@ -3,10 +3,11 @@ import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getPipelineForUser } from "@/lib/pipelines/createPipelineFromTemplate";
+import { ItemMetadataDisplay } from "@/components/ItemMetadataDisplay";
 import { StageBadge } from "@/components/StageBadge";
 import { StageTimeline } from "@/components/StageTimeline";
 import { StageUpdateForm } from "@/components/StageUpdateForm";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function ItemDetailPage({
   params,
@@ -49,7 +50,7 @@ export default async function ItemDetailPage({
           />
         </div>
         {item.subtitle && (
-          <p className="text-muted-foreground">{item.subtitle}</p>
+          <p className="mt-1 text-muted-foreground">{item.subtitle}</p>
         )}
       </div>
 
@@ -57,8 +58,13 @@ export default async function ItemDetailPage({
         <Card>
           <CardHeader>
             <CardTitle>Details</CardTitle>
+            <CardDescription>Key information about this item</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm">
+          <CardContent className="space-y-4 text-sm">
+            <ItemMetadataDisplay
+              template={pipeline.template}
+              metadata={item.metadata}
+            />
             {item.externalUrl && (
               <p>
                 <span className="text-muted-foreground">Link: </span>
@@ -66,17 +72,24 @@ export default async function ItemDetailPage({
                   href={item.externalUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-primary hover:underline"
+                  className="font-medium text-primary hover:underline"
                 >
-                  {item.externalUrl}
+                  View posting →
                 </a>
               </p>
             )}
             {item.notes && (
-              <p className="whitespace-pre-wrap">{item.notes}</p>
+              <div>
+                <p className="mb-1 text-muted-foreground">Notes</p>
+                <p className="whitespace-pre-wrap rounded-md bg-muted/30 p-3">
+                  {item.notes}
+                </p>
+              </div>
             )}
             <p className="text-muted-foreground">
-              Started {item.startedAt.toLocaleDateString()}
+              Tracking since {item.startedAt.toLocaleDateString(undefined, {
+                dateStyle: "medium",
+              })}
             </p>
           </CardContent>
         </Card>
@@ -84,6 +97,9 @@ export default async function ItemDetailPage({
         <Card>
           <CardHeader>
             <CardTitle>Update stage</CardTitle>
+            <CardDescription>
+              Move this item as progress changes — each update is logged in your timeline.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <StageUpdateForm
@@ -99,6 +115,7 @@ export default async function ItemDetailPage({
       <Card>
         <CardHeader>
           <CardTitle>Timeline</CardTitle>
+          <CardDescription>Every stage change you&apos;ve made</CardDescription>
         </CardHeader>
         <CardContent>
           <StageTimeline events={item.stageEvents} />

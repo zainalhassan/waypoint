@@ -1,0 +1,65 @@
+import Link from "next/link";
+import { auth } from "@/lib/auth";
+import { getMarketplaceTemplates, parseMarketplaceSort } from "@/lib/marketplace/queries";
+import { MarketplaceSortTabs } from "@/components/MarketplaceSortTabs";
+import { MarketplaceTemplateCard } from "@/components/MarketplaceTemplateCard";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+export default async function MarketplacePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sort?: string }>;
+}) {
+  const { sort: sortParam } = await searchParams;
+  const sort = parseMarketplaceSort(sortParam);
+  const session = await auth();
+  const templates = await getMarketplaceTemplates(sort);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Template marketplace</h1>
+          <p className="text-muted-foreground">
+            Browse community templates, copy them to your account, and share your own.
+          </p>
+        </div>
+        <Link href="/templates/new" className={cn(buttonVariants({ variant: "outline" }))}>
+          Create & share
+        </Link>
+      </div>
+
+      <MarketplaceSortTabs current={sort} />
+
+      {templates.length === 0 ? (
+        <div className="rounded-lg border border-dashed p-10 text-center">
+          <p className="font-medium">No public templates yet</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Be the first to share a template from{" "}
+            <Link href="/templates" className="text-primary hover:underline">
+              My templates
+            </Link>
+            .
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {templates.map((template) => (
+            <MarketplaceTemplateCard key={template.id} {...template} />
+          ))}
+        </div>
+      )}
+
+      {session?.user && (
+        <p className="text-sm text-muted-foreground">
+          Signed in as {session.user.name ?? session.user.email}. Publish templates from{" "}
+          <Link href="/templates" className="text-primary hover:underline">
+            My templates
+          </Link>
+          .
+        </p>
+      )}
+    </div>
+  );
+}

@@ -56,6 +56,19 @@ export const PIPELINE_TEMPLATES: Record<PipelineTemplate, TemplateDefinition> = 
       { name: "Lost", slug: "lost", sortOrder: 4, isTerminal: true, color: "#ef4444" },
     ],
   },
+  INVESTMENTS: {
+    template: "INVESTMENTS",
+    label: "Investments",
+    description: "Track holdings from research to exit with portfolio breakdown.",
+    stages: [
+      { name: "Researching", slug: "researching", sortOrder: 0, isEntry: true, color: "#3b82f6" },
+      { name: "Watching", slug: "watching", sortOrder: 1, color: "#8b5cf6" },
+      { name: "Bought", slug: "bought", sortOrder: 2, color: "#06b6d4" },
+      { name: "Holding", slug: "holding", sortOrder: 3, color: "#22c55e" },
+      { name: "Sold", slug: "sold", sortOrder: 4, isTerminal: true, color: "#f59e0b" },
+      { name: "Passed", slug: "passed", sortOrder: 5, isTerminal: true, color: "#6b7280" },
+    ],
+  },
   CUSTOM: {
     template: "CUSTOM",
     label: "Custom",
@@ -72,3 +85,7 @@ export const PIPELINE_TEMPLATES: Record<PipelineTemplate, TemplateDefinition> = 
 export const TEMPLATE_LIST = Object.values(PIPELINE_TEMPLATES).filter(
   (t) => t.template !== "CUSTOM",
 );
+
+export function getTemplateLabel(template: PipelineTemplate): string {
+  return PIPELINE_TEMPLATES[template]?.label ?? template;
+}
