@@ -91,13 +91,19 @@ export async function toggleTemplateLike(templateId: string): Promise<ActionStat
   });
 
   if (existing) {
-    await prisma.$transaction([
-      prisma.templateLike.delete({ where: { id: existing.id } }),
-      prisma.userTemplate.update({
+    await prisma.$transaction(async (tx) => {
+      await tx.templateLike.delete({ where: { id: existing.id } });
+      const current = await tx.userTemplate.findUnique({
         where: { id: templateId },
-        data: { likeCount: { decrement: 1 } },
-      }),
-    ]);
+        select: { likeCount: true },
+      });
+      if (current && current.likeCount > 0) {
+        await tx.userTemplate.update({
+          where: { id: templateId },
+          data: { likeCount: { decrement: 1 } },
+        });
+      }
+    });
   } else {
     await prisma.$transaction([
       prisma.templateLike.create({

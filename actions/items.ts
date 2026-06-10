@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getMetadataSchema } from "@/lib/items/metadataSchemas";
 import { prisma } from "@/lib/prisma";
+import { pickEntryStage } from "@/lib/pipelines/pickEntryStage";
 import { getUserDefaultCurrency } from "@/lib/user";
 import { createItemSchema, updateItemStageSchema } from "@/lib/validations";
 
@@ -65,8 +66,8 @@ export async function createItem(
     return { error: "Invalid metadata fields" };
   }
 
-  const entryStage = pipeline.stages.find((s) => s.isEntry) ?? pipeline.stages[0];
-  if (!entryStage) return { error: "Pipeline has no stages" };
+  const entryStage = pickEntryStage(pipeline.stages);
+  if (!entryStage) return { error: "Pipeline has no active stages" };
 
   const item = await prisma.$transaction(async (tx) => {
     const created = await tx.item.create({

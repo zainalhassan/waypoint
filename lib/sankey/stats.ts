@@ -12,8 +12,9 @@ export function computePipelineStats(
   items: (Item & { currentStage: Stage })[],
   template: PipelineTemplate,
 ): PipelineStats {
-  const total = items.length;
-  const terminal = items.filter((i) => i.currentStage.isTerminal).length;
+  const tracked = items.filter((i) => !i.currentStage.isArchived);
+  const total = tracked.length;
+  const terminal = tracked.filter((i) => i.currentStage.isTerminal).length;
   const active = total - terminal;
 
   let successSlugs: string[] = [];
@@ -41,7 +42,7 @@ export function computePipelineStats(
       conversionLabel = "Completion rate";
   }
 
-  const successCount = items.filter((i) =>
+  const successCount = tracked.filter((i) =>
     successSlugs.includes(i.currentStage.slug),
   ).length;
 

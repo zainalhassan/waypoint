@@ -24,6 +24,23 @@ describe("computePipelineStats", () => {
     expect(stats.conversionLabel).toBe("Reached interview");
   });
 
+  it("excludes items in archived stages from totals", () => {
+    const applied = stage({ slug: "applied", name: "Applied" });
+    const archived = stage({
+      slug: "in-progress",
+      name: "In progress (removed)",
+      isArchived: true,
+    });
+
+    const stats = computePipelineStats(
+      [item({ currentStage: applied }), item({ currentStage: archived })],
+      "JOB_SEARCH",
+    );
+
+    expect(stats.total).toBe(1);
+    expect(stats.active).toBe(1);
+  });
+
   it("computes investment active holdings rate", () => {
     const holding = stage({ slug: "holding", name: "Holding" });
     const researching = stage({ slug: "researching", name: "Researching" });
