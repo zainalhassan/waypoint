@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PipelineTemplate {
+  JOB_SEARCH
+  GRAD_SCHOOL
+  SALES
+  CUSTOM
+}
+
+model User {
+  id            String     @id @default(cuid())
+  name          String?
+  email         String     @unique
+  emailVerified DateTime?
+  passwordHash  String?
+  image         String?
+  pipelines     Pipeline[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model Pipeline {
+  id        String           @id @default(cuid())
+  userId    String
+  name      String
+  template  PipelineTemplate
+  stages    Stage[]
+  items     Item[]
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([userId])
+}
+
+model Stage {
+  id         String       @id @default(cuid())
+  pipelineId String
+  name       String
+  slug       String
+  sortOrder  Int
+  isEntry    Boolean      @default(false)
+  isTerminal Boolean      @default(false)
+  color      String?
+  pipeline   Pipeline     @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  items      Item[]       @relation("CurrentStage")
+  eventsFrom StageEvent[] @relation("FromStage")
+  eventsTo   StageEvent[] @relation("ToStage")
+
+  @@unique([pipelineId, slug])
+  @@index([pipelineId, sortOrder])
+}
+
+model Item {
+  id             String       @id @default(cuid())
+  pipelineId     String
+  title          String
+  subtitle       String?
+  notes          String?
+  externalUrl    String?
+  metadata       Json?
+  startedAt      DateTime     @default(now())
+  currentStageId String
+  pipeline       Pipeline     @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  currentStage   Stage        @relation("CurrentStage", fields: [currentStageId], references: [id])
+  stageEvents    StageEvent[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([pipelineId])
+  @@index([pipelineId, currentStageId])
+}
+
+model StageEvent {
+  id          String   @id @default(cuid())
+  itemId      String
+  fromStageId String?
+  toStageId   String
+  occurredAt  DateTime @default(now())
+  item        Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  fromStage   Stage?   @relation("FromStage", fields: [fromStageId], references: [id])
+  toStage     Stage    @relation("ToStage", fields: [toStageId], references: [id])
+
+  @@index([itemId])
+  @@index([toStageId])
+}

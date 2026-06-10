@@ -1,0 +1,61 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: waypoint-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: waypoint
+      POSTGRES_PASSWORD: waypoint
+      POSTGRES_DB: waypoint
+    ports:
+      - "5432:5432"
+    volumes:
+      - waypoint_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U waypoint -d waypoint"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: waypoint-app
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://waypoint:waypoint@db:5432/waypoint
+      AUTH_SECRET: ${AUTH_SECRET:-dev-secret-change-me-in-production}
+      AUTH_URL: ${AUTH_URL:-http://localhost:3000}
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh docker/entrypoint.sh npm run dev
+
+  app-prod:
+    profiles: ["prod"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: waypoint-app-prod
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://waypoint:waypoint@db:5432/waypoint
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_URL: ${AUTH_URL:-http://localhost:3000}
+      NODE_ENV: production
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  waypoint_pg_data:
