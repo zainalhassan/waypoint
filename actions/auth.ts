@@ -2,8 +2,13 @@
 
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
+import { signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/lib/validations";
+
+export async function signOutUser() {
+  await signOut({ redirectTo: "/login" });
+}
 
 export type AuthActionState = {
   error?: string;

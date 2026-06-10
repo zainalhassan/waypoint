@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { Settings } from "lucide-react";
-import { signOut } from "@/lib/auth";
+import { signOutUser } from "@/actions/auth";
+import { MobileNav } from "@/components/layout/MobileNav";
 import { Button } from "@/components/ui/button";
+
+const NAV_LINKS = [
+  { href: "/marketplace", label: "Marketplace" },
+  { href: "/templates", label: "Templates" },
+  { href: "/pipelines/new", label: "New pipeline" },
+] as const;
 
 export function AppNav() {
   return (
@@ -10,25 +17,17 @@ export function AppNav() {
         <Link href="/" className="text-lg font-semibold tracking-tight">
           Waypoint
         </Link>
-        <nav className="flex items-center gap-1 sm:gap-2">
-          <Link
-            href="/marketplace"
-            className="hidden rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground sm:inline"
-          >
-            Marketplace
-          </Link>
-          <Link
-            href="/templates"
-            className="hidden rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground md:inline"
-          >
-            Templates
-          </Link>
-          <Link
-            href="/pipelines/new"
-            className="rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
-          >
-            New pipeline
-          </Link>
+
+        <nav className="hidden items-center gap-1 lg:flex lg:gap-2">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              {link.label}
+            </Link>
+          ))}
           <Link
             href="/settings"
             className="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -37,17 +36,14 @@ export function AppNav() {
           >
             <Settings className="size-5" />
           </Link>
-          <form
-            action={async () => {
-              "use server";
-              await signOut({ redirectTo: "/login" });
-            }}
-          >
+          <form action={signOutUser}>
             <Button type="submit" variant="ghost" size="sm">
               Sign out
             </Button>
           </form>
         </nav>
+
+        <MobileNav />
       </div>
     </header>
   );
