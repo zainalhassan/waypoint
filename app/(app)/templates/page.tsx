@@ -4,6 +4,7 @@ import { getUserTemplates } from "@/lib/pipelines/createPipelineFromUserTemplate
 import { toTemplateMetrics } from "@/lib/marketplace/metrics";
 import { DeleteTemplateButton } from "@/components/DeleteTemplateButton";
 import { PublishTemplateButton } from "@/components/PublishTemplateButton";
+import { TemplateLinkActions } from "@/components/TemplateLinkActions";
 import { TemplateMetrics } from "@/components/TemplateMetrics";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -13,10 +14,10 @@ import { cn } from "@/lib/utils";
 export default async function TemplatesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ copied?: string }>;
+  searchParams: Promise<{ copied?: string; linked?: string; synced?: string }>;
 }) {
   const session = await auth();
-  const { copied } = await searchParams;
+  const { copied, linked, synced } = await searchParams;
   const templates = await getUserTemplates(session!.user!.id);
 
   return (
@@ -42,9 +43,17 @@ export default async function TemplatesPage({
         </div>
       </div>
 
+      {synced && (
+        <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900 dark:border-green-900 dark:bg-green-950 dark:text-green-100">
+          Template synced. Your pipelines were updated and items in removed stages were moved.
+        </div>
+      )}
+
       {copied && (
         <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900 dark:border-green-900 dark:bg-green-950 dark:text-green-100">
-          Template copied to your library. Use it when creating a new pipeline.
+          {linked
+            ? "Linked copy saved. It will stay in sync when the author updates the original — use Sync now anytime."
+            : "Independent copy saved. You can edit it freely from your templates list."}
         </div>
       )}
 
@@ -71,11 +80,15 @@ export default async function TemplatesPage({
                   <div className="space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <CardTitle className="text-base">{template.name}</CardTitle>
-                      {template.isPublic && (
-                        <Badge variant="secondary">Public</Badge>
+                      {template.isPublic && <Badge variant="secondary">Public</Badge>}
+                      {template.isLinkedToSource && (
+                        <Badge variant="outline">Linked</Badge>
                       )}
-                      {template.forkedFromId && (
-                        <Badge variant="outline">Copied</Badge>
+                      {template.pendingSourceSync && (
+                        <Badge variant="destructive">Sync required</Badge>
+                      )}
+                      {template.forkedFromId && !template.isLinkedToSource && (
+                        <Badge variant="outline">Independent copy</Badge>
                       )}
                     </div>
                     {template.description && (
@@ -106,6 +119,13 @@ export default async function TemplatesPage({
                     </Link>
                   )}
                 </div>
+                <TemplateLinkActions
+                  templateId={template.id}
+                  isLinkedToSource={template.isLinkedToSource}
+                  forkedFromId={template.forkedFromId}
+                  pendingSourceSync={template.pendingSourceSync}
+                  sourceName={template.forkedFrom?.name}
+                />
               </CardContent>
             </Card>
           ))}

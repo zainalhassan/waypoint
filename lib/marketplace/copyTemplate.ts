@@ -1,6 +1,10 @@
 import { prisma } from "@/lib/prisma";
 
-export async function copyPublicTemplate(userId: string, sourceTemplateId: string) {
+export async function copyPublicTemplate(
+  userId: string,
+  sourceTemplateId: string,
+  linked: boolean,
+) {
   const source = await prisma.userTemplate.findFirst({
     where: { id: sourceTemplateId, isPublic: true },
     include: { stages: { orderBy: { sortOrder: "asc" } } },
@@ -17,6 +21,7 @@ export async function copyPublicTemplate(userId: string, sourceTemplateId: strin
         name: source.name,
         description: source.description,
         forkedFromId: source.id,
+        isLinkedToSource: linked,
         stages: {
           create: source.stages.map((stage) => ({
             name: stage.name,

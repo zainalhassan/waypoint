@@ -105,7 +105,9 @@ export default async function ItemDetailPage({
             <StageUpdateForm
               pipelineId={pipelineId}
               itemId={itemId}
-              stages={pipeline.stages}
+              stages={pipeline.stages.filter(
+                (s) => !s.isArchived || s.id === item.currentStageId,
+              )}
               currentStageId={item.currentStageId}
             />
           </CardContent>

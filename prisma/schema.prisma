@@ -38,19 +38,22 @@ model UserTemplate {
   description  String?
   isPublic     Boolean             @default(false)
   publishedAt  DateTime?
-  forkedFromId String?
-  likeCount    Int                 @default(0)
+  forkedFromId       String?
+  isLinkedToSource   Boolean             @default(false)
+  likeCount          Int                 @default(0)
   copyCount    Int                 @default(0)
   ratingSum    Int                 @default(0)
   ratingCount  Int                 @default(0)
-  commentCount Int                 @default(0)
-  stages       UserTemplateStage[]
-  likes        TemplateLike[]
-  ratings      TemplateRating[]
-  comments     TemplateComment[]
-  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  forkedFrom   UserTemplate?       @relation("TemplateForks", fields: [forkedFromId], references: [id], onDelete: SetNull)
-  forks        UserTemplate[]      @relation("TemplateForks")
+  commentCount      Int                 @default(0)
+  pendingSourceSync Boolean             @default(false)
+  stages            UserTemplateStage[]
+  pipelines         Pipeline[]
+  likes             TemplateLike[]
+  ratings           TemplateRating[]
+  comments          TemplateComment[]
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  forkedFrom        UserTemplate?       @relation("TemplateForks", fields: [forkedFromId], references: [id], onDelete: SetNull)
+  forks             UserTemplate[]      @relation("TemplateForks")
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
 
@@ -116,17 +119,20 @@ model TemplateComment {
 }
 
 model Pipeline {
-  id        String           @id @default(cuid())
-  userId    String
-  name      String
-  template  PipelineTemplate
-  stages    Stage[]
-  items     Item[]
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  id             String           @id @default(cuid())
+  userId         String
+  userTemplateId String?
+  name           String
+  template       PipelineTemplate
+  stages         Stage[]
+  items          Item[]
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userTemplate   UserTemplate?    @relation(fields: [userTemplateId], references: [id], onDelete: SetNull)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
   @@index([userId])
+  @@index([userTemplateId])
 }
 
 model Stage {
@@ -137,6 +143,7 @@ model Stage {
   sortOrder  Int
   isEntry    Boolean      @default(false)
   isTerminal Boolean      @default(false)
+  isArchived Boolean      @default(false)
   color      String?
   pipeline   Pipeline     @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
   items      Item[]       @relation("CurrentStage")

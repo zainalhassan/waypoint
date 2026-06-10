@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CreateUserTemplateForm } from "@/components/CreateUserTemplateForm";
+import { UserTemplateForm } from "@/components/UserTemplateForm";
 
 export default function NewTemplatePage() {
   return (
@@ -13,7 +13,7 @@ export default function NewTemplatePage() {
           Define your own stages once, then reuse them for any pipeline.
         </p>
       </div>
-      <CreateUserTemplateForm />
+      <UserTemplateForm mode="create" />
     </div>
   );
 }

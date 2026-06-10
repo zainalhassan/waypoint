@@ -54,17 +54,21 @@ export async function unpublishTemplate(templateId: string): Promise<ActionState
   return { success: true };
 }
 
-export async function copyMarketplaceTemplate(templateId: string): Promise<ActionState> {
+export async function copyMarketplaceTemplate(
+  templateId: string,
+  linked: boolean,
+): Promise<ActionState> {
   const session = await auth();
   if (!session?.user?.id) return { error: "Unauthorized" };
 
   try {
-    const copy = await copyPublicTemplate(session.user.id, templateId);
+    const copy = await copyPublicTemplate(session.user.id, templateId, linked);
     revalidatePath("/templates");
     revalidatePath("/pipelines/new");
     revalidatePath("/marketplace");
     revalidatePath(`/marketplace/${templateId}`);
-    redirect(`/templates?copied=${copy.id}`);
+    const query = linked ? `copied=${copy.id}&linked=1` : `copied=${copy.id}`;
+    redirect(`/templates?${query}`);
   } catch {
     return { error: "Template not found" };
   }

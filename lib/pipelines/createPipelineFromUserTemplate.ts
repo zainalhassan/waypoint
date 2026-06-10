@@ -18,6 +18,7 @@ export async function createPipelineFromUserTemplate(
     return tx.pipeline.create({
       data: {
         userId,
+        userTemplateId,
         name,
         template: "CUSTOM",
         stages: {
@@ -41,6 +42,7 @@ export async function getUserTemplates(userId: string) {
     where: { userId },
     include: {
       stages: { orderBy: { sortOrder: "asc" } },
+      forkedFrom: { select: { id: true, name: true, isPublic: true } },
       _count: { select: { stages: true } },
     },
     orderBy: { updatedAt: "desc" },

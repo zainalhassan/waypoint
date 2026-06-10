@@ -1,14 +1,16 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { createUserTemplate, type ActionState } from "@/actions/templates";
+import {
+  createUserTemplate,
+  updateUserTemplate,
+  type ActionState,
+} from "@/actions/templates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2 } from "lucide-react";
-
-const initialState: ActionState = {};
 
 type StageRow = {
   id: string;
@@ -16,6 +18,20 @@ type StageRow = {
   isEntry: boolean;
   isTerminal: boolean;
 };
+
+export type UserTemplateFormValues = {
+  name: string;
+  description: string;
+  stages: { name: string; isEntry: boolean; isTerminal: boolean }[];
+};
+
+type UserTemplateFormProps = {
+  mode: "create" | "edit";
+  templateId?: string;
+  initial?: UserTemplateFormValues;
+};
+
+const initialState: ActionState = {};
 
 function newStage(index: number): StageRow {
   return {
@@ -26,13 +42,30 @@ function newStage(index: number): StageRow {
   };
 }
 
-export function CreateUserTemplateForm() {
-  const [state, formAction, pending] = useActionState(createUserTemplate, initialState);
-  const [stages, setStages] = useState<StageRow[]>([
-    { id: "1", name: "Started", isEntry: true, isTerminal: false },
-    { id: "2", name: "In progress", isEntry: false, isTerminal: false },
-    { id: "3", name: "Complete", isEntry: false, isTerminal: true },
-  ]);
+function toStageRows(stages: UserTemplateFormValues["stages"]): StageRow[] {
+  return stages.map((stage, index) => ({
+    id: String(index + 1),
+    name: stage.name,
+    isEntry: stage.isEntry,
+    isTerminal: stage.isTerminal,
+  }));
+}
+
+export function UserTemplateForm({ mode, templateId, initial }: UserTemplateFormProps) {
+  const boundUpdate =
+    mode === "edit" && templateId
+      ? updateUserTemplate.bind(null, templateId)
+      : createUserTemplate;
+  const [state, formAction, pending] = useActionState(boundUpdate, initialState);
+  const [stages, setStages] = useState<StageRow[]>(
+    initial
+      ? toStageRows(initial.stages)
+      : [
+          { id: "1", name: "Started", isEntry: true, isTerminal: false },
+          { id: "2", name: "In progress", isEntry: false, isTerminal: false },
+          { id: "3", name: "Complete", isEntry: false, isTerminal: true },
+        ],
+  );
 
   function addStage() {
     setStages((prev) => [...prev, newStage(prev.length)]);
@@ -52,7 +85,13 @@ export function CreateUserTemplateForm() {
     <form action={formAction} className="max-w-xl space-y-6">
       <div className="space-y-2">
         <Label htmlFor="name">Template name</Label>
-        <Input id="name" name="name" required placeholder="Side projects" />
+        <Input
+          id="name"
+          name="name"
+          required
+          defaultValue={initial?.name}
+          placeholder="Side projects"
+        />
       </div>
 
       <div className="space-y-2">
@@ -61,6 +100,7 @@ export function CreateUserTemplateForm() {
           id="description"
           name="description"
           rows={2}
+          defaultValue={initial?.description}
           placeholder="Optional — what this pipeline is for"
         />
       </div>
@@ -123,7 +163,7 @@ export function CreateUserTemplateForm() {
 
       {state.error && <p className="text-sm text-destructive">{state.error}</p>}
       <Button type="submit" disabled={pending}>
-        {pending ? "Saving…" : "Save template"}
+        {pending ? "Saving…" : mode === "edit" ? "Save changes" : "Save template"}
       </Button>
     </form>
   );
