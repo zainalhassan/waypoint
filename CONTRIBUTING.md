@@ -28,10 +28,10 @@ docker compose exec app npm run lint
 
 ## Design changes
 
-1. Update `design/tokens.json` first
-2. Sync Figma Variables (see `docs/DESIGN_SYSTEM.md`)
-3. Update `app/globals.css` CSS variables
-4. Update components — do not hardcode colors
+1. Update tokens in the [`design-system`](https://github.com/zainalhassan/design-system) repo (`themes/transit/tokens.json`)
+2. Run `npm run build` in `design-system`, then `npm install` in Waypoint
+3. Sync Figma Variables (see `docs/DESIGN_SYSTEM.md`)
+4. Update `app/globals.css` only if new shadcn mappings are needed
 
 ## Pull request checklist
 

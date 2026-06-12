@@ -4,12 +4,14 @@ WORKDIR /app
 
 RUN apk add --no-cache libc6-compat openssl
 
-COPY package.json package-lock.json ./
-COPY prisma ./prisma
-COPY prisma.config.ts ./
+COPY design-system /design-system
+
+COPY waypoint/package.json waypoint/package-lock.json ./
+COPY waypoint/prisma ./prisma
+COPY waypoint/prisma.config.ts ./
 RUN npm ci
 
-COPY . .
+COPY waypoint .
 
 EXPOSE 3000
 

@@ -1,60 +1,56 @@
 # Design System
 
-Waypoint uses a **stack-agnostic design system** so the same Figma designs can be implemented in Next.js, Laravel/Vue, or other stacks without redesign.
+Waypoint uses the shared [**Transit theme**](https://github.com/zainalhassan/design-system) from `@zainalhassan/design-system` — inspired by [Transit 6.0](https://blog.transitapp.com/six-o/).
 
 ## Source of truth
 
 | Layer | Location | Purpose |
 |-------|----------|---------|
-| Design tokens | [`design/tokens.json`](../design/tokens.json) | Colors, spacing, typography (W3C format) |
-| Figma components | [`design/figma/COMPONENT_MAP.md`](../design/figma/COMPONENT_MAP.md) | Figma ↔ code naming |
-| CSS variables | [`app/globals.css`](../app/globals.css) | Next.js runtime theme (shadcn) |
+| Design tokens | [`design-system` repo](https://github.com/zainalhassan/design-system) → `themes/transit/tokens.json` | Colors, spacing, typography (W3C format) |
+| Component spec | `design-system/specs/transit.md` | ETA cards, buttons, route colours |
+| CSS variables | `@zainalhassan/design-system/transit/variables.css` | Stack-agnostic theme |
+| shadcn mapping | [`app/globals.css`](../app/globals.css) | Maps Transit tokens → shadcn/ui variables |
 
 ## Workflow
 
-1. **Design in Figma** using Variables that match `design/tokens.json`
-2. **Export tokens** (Tokens Studio → JSON) and commit to `design/tokens.json`
-3. **Implement per stack:**
-   - Next.js: update `globals.css` CSS variables
-   - Vue/Laravel: generate SCSS or Tailwind theme from tokens JSON
+1. **Edit tokens** in the `design-system` repo (`themes/transit/tokens.json`)
+2. Run `npm run build` in `design-system` to regenerate `dist/`
+3. **Bump the dependency** in Waypoint (`npm install` picks up local `file:../design-system`)
+4. **Adjust shadcn mapping** in `globals.css` only if new semantic tokens are added
 
-## Figma setup (recommended)
+## Figma setup
 
-Create a Figma library file: **Waypoint Design System**
+Create a Figma library using variables that match the Transit theme tokens:
 
 **Collections:**
-- `color/brand` — primary, accent
+- `color/brand` — primary green, secondary
+- `color/route` — line colours (red, blue, orange, …)
 - `color/semantic` — success, warning, destructive
-- `color/stage` — pipeline stage colors
-- `spacing/*` — 4, 8, 16, 24, 32
-- `radius/*` — sm, md, lg
-- `typography/*` — font families and sizes
+- `spacing/*`, `radius/*`, `typography/*`
 
 **Components to build:**
+- ETA card (signature Transit 6.0 pattern)
 - Button (primary, secondary, ghost)
-- Input, Textarea, Select
-- Card
-- Badge (especially stage/status variant)
-- Table row / header
+- Input, Card, Badge, Table
 - App navigation bar
-- Empty state block
 - Stat card (analytics)
-- Sankey chart placeholder frame
 
-## Principles
-
-1. **Tokens over hardcoded values** — no random hex in components
-2. **Component names match code** — see COMPONENT_MAP.md
-3. **Stages use semantic colors** — from `color.stage.*` tokens
-4. **Layouts use 8px grid** — spacing tokens
+See the [Transit component spec](https://github.com/zainalhassan/design-system/blob/main/specs/transit.md) for details.
 
 ## This project (Next.js)
 
-UI built with **shadcn/ui** primitives in `components/ui/`. Domain components in `components/` follow Figma screen names:
+UI built with **shadcn/ui** in `components/ui/`. Typography: **Plus Jakarta Sans** (Puffin Transit substitute).
 
-- `PipelineCard` → Pipelines / List / Card
-- `ItemTable` → Pipeline / Dashboard / Table
-- `StageBadge` → Badge / Stage
-- `SankeyChart` → Analytics / Sankey
+Domain components:
 
-When updating designs, change tokens first, then Figma, then CSS — never the reverse.
+- `PipelineCard` → pipeline list cards
+- `ItemTable` → pipeline dashboard table
+- `StageBadge` → route-coloured status pill
+- `SankeyChart` → analytics flow chart
+
+## Principles
+
+1. **Tokens over hardcoded values** — import from `@zainalhassan/design-system`
+2. **Theme lives in design-system repo** — not in this project
+3. **Stages use route palette** — `var(--color-route-*)` where appropriate
+4. **Dark mode** — add `.dark` class on `<html>` (Neon Dark Mode tokens)

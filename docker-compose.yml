@@ -19,8 +19,8 @@ services:
 
   app:
     build:
-      context: .
-      dockerfile: Dockerfile.dev
+      context: ..
+      dockerfile: waypoint/Dockerfile.dev
     container_name: waypoint-app
     ports:
       - "3000:3000"
@@ -32,6 +32,7 @@ services:
       CHOKIDAR_USEPOLLING: "true"
     volumes:
       - .:/app
+      - ../design-system:/design-system
       - /app/node_modules
       # Note: do not mount a persistent .next volume — it caches stale builds on Windows
     depends_on:
@@ -42,8 +43,8 @@ services:
   app-prod:
     profiles: ["prod"]
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: waypoint/Dockerfile
     container_name: waypoint-app-prod
     restart: unless-stopped
     ports:
