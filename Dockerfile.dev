@@ -2,16 +2,14 @@ FROM node:24-alpine
 
 WORKDIR /app
 
-RUN apk add --no-cache libc6-compat openssl
+RUN apk add --no-cache libc6-compat openssl git
 
-COPY design-system /design-system
-
-COPY waypoint/package.json waypoint/package-lock.json ./
-COPY waypoint/prisma ./prisma
-COPY waypoint/prisma.config.ts ./
+COPY package.json package-lock.json ./
+COPY prisma ./prisma
+COPY prisma.config.ts ./
 RUN npm ci
 
-COPY waypoint .
+COPY . .
 
 EXPOSE 3000
 

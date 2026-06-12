@@ -24,7 +24,7 @@ export function PipelineCard({
 
   return (
     <Link href={`/pipelines/${id}`}>
-      <Card className="transition-colors hover:border-primary/40 hover:bg-muted/30">
+      <Card className="rounded-[var(--radius-card)] border-border/80 shadow-sm transition-all hover:border-primary/50 hover:shadow-md">
         <CardHeader className="pb-2">
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-base">{name}</CardTitle>

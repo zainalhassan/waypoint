@@ -33,9 +33,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Checkout design-system
-        run: git clone --depth 1 https://github.com/zainalhassan/design-system.git ../design-system
-
       - uses: actions/setup-node@v4
         with:
           node-version: "24"

@@ -12,9 +12,9 @@ const NAV_LINKS = [
 
 export function AppNav() {
   return (
-    <header className="border-b bg-card">
+    <header className="border-b border-border/80 bg-card shadow-sm">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-        <Link href="/" className="text-lg font-semibold tracking-tight">
+        <Link href="/" className="text-lg font-bold tracking-tight text-primary">
           Waypoint
         </Link>
 

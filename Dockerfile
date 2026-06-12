@@ -1,18 +1,16 @@
 FROM node:24-alpine AS base
-RUN apk add --no-cache libc6-compat openssl
+RUN apk add --no-cache libc6-compat openssl git
 WORKDIR /app
 
 FROM base AS deps
-COPY design-system /design-system
-COPY waypoint/package.json waypoint/package-lock.json ./
-COPY waypoint/prisma ./prisma
-COPY waypoint/prisma.config.ts ./
+COPY package.json package-lock.json ./
+COPY prisma ./prisma
+COPY prisma.config.ts ./
 RUN npm ci
 
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
-COPY design-system /design-system
-COPY waypoint .
+COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npx prisma generate
 RUN npm run build
@@ -30,7 +28,7 @@ COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY waypoint/docker/entrypoint.sh ./docker/entrypoint.sh
+COPY docker/entrypoint.sh ./docker/entrypoint.sh
 RUN chmod +x ./docker/entrypoint.sh
 
 USER nextjs
