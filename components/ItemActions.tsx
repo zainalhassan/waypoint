@@ -66,7 +66,17 @@ export function ItemActions({
             defaultCurrency={defaultCurrency}
             mode="edit"
             itemId={item.id}
-            initial={item}
+            initial={{
+              title: item.title,
+              subtitle: item.subtitle,
+              notes: item.notes,
+              externalUrl: item.externalUrl,
+              startedAt: item.startedAt,
+              metadata:
+                item.metadata && typeof item.metadata === "object" && !Array.isArray(item.metadata)
+                  ? (item.metadata as Record<string, unknown>)
+                  : null,
+            }}
             onEditSuccess={() => setEditing(false)}
           />
         </div>
