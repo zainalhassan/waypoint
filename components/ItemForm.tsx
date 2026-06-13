@@ -1,9 +1,11 @@
 "use client";
 
-import { useActionState } from "react";
-import { createItem, type ActionState } from "@/actions/items";
-import type { PipelineTemplate } from "@prisma/client";
+import { useActionState, useEffect } from "react";
+import { toast } from "sonner";
+import { createItem, updateItem, type ActionState } from "@/actions/items";
+import type { Item, PipelineTemplate } from "@prisma/client";
 import {
+  EXTERNAL_URL_LABELS,
   HAS_DEAL_VALUE_FIELDS,
   HAS_INVESTMENT_FIELDS,
   HAS_SALARY_FIELDS,
@@ -17,21 +19,60 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
+type ItemMetadata = Record<string, unknown>;
+
 type ItemFormProps = {
   pipelineId: string;
   template: PipelineTemplate;
   defaultCurrency: string;
+  mode?: "create" | "edit";
+  itemId?: string;
+  initial?: Pick<Item, "title" | "subtitle" | "notes" | "externalUrl" | "startedAt"> & {
+    metadata?: ItemMetadata | null;
+  };
+  onEditSuccess?: () => void;
 };
 
 const initialState: ActionState = {};
 
-export function ItemForm({ pipelineId, template, defaultCurrency }: ItemFormProps) {
-  const boundAction = createItem.bind(null, pipelineId);
+function metadataValue(metadata: ItemMetadata | null | undefined, key: string) {
+  if (!metadata || typeof metadata !== "object") return undefined;
+  const value = metadata[key];
+  if (value === null || value === undefined) return undefined;
+  return value as string | number;
+}
+
+export function ItemForm({
+  pipelineId,
+  template,
+  defaultCurrency,
+  mode = "create",
+  itemId,
+  initial,
+  onEditSuccess,
+}: ItemFormProps) {
+  const isEdit = mode === "edit" && itemId;
+  const boundAction = isEdit
+    ? updateItem.bind(null, pipelineId, itemId!)
+    : createItem.bind(null, pipelineId);
   const [state, formAction, pending] = useActionState(boundAction, initialState);
   const metadataFields = METADATA_FIELDS[template];
   const showSalary = HAS_SALARY_FIELDS.includes(template);
   const showDealValue = HAS_DEAL_VALUE_FIELDS.includes(template);
   const showInvestment = HAS_INVESTMENT_FIELDS.includes(template);
+  const urlLabels = EXTERNAL_URL_LABELS[template];
+  const meta = (initial?.metadata ?? {}) as ItemMetadata;
+
+  useEffect(() => {
+    if (state.success && isEdit) {
+      toast.success("Item updated");
+      onEditSuccess?.();
+    }
+  }, [state.success, isEdit, onEditSuccess]);
+
+  const startedAtValue = initial?.startedAt
+    ? new Date(initial.startedAt).toISOString().slice(0, 10)
+    : undefined;
 
   return (
     <form action={formAction} className="max-w-lg space-y-6">
@@ -44,6 +85,7 @@ export function ItemForm({ pipelineId, template, defaultCurrency }: ItemFormProp
             name="title"
             required
             placeholder="Senior Engineer @ Acme"
+            defaultValue={initial?.title}
           />
           <p className="text-xs text-muted-foreground">
             A short name you&apos;ll recognize — role and company works well.
@@ -51,8 +93,24 @@ export function ItemForm({ pipelineId, template, defaultCurrency }: ItemFormProp
         </div>
         <div className="space-y-2">
           <Label htmlFor="subtitle">Role or subtitle</Label>
-          <Input id="subtitle" name="subtitle" placeholder="Platform team · Full-time" />
+          <Input
+            id="subtitle"
+            name="subtitle"
+            placeholder="Platform team · Full-time"
+            defaultValue={initial?.subtitle ?? ""}
+          />
         </div>
+        {isEdit && (
+          <div className="space-y-2">
+            <Label htmlFor="startedAt">Started tracking</Label>
+            <Input
+              id="startedAt"
+              name="startedAt"
+              type="date"
+              defaultValue={startedAtValue}
+            />
+          </div>
+        )}
       </fieldset>
 
       {metadataFields.length > 0 && (
@@ -66,6 +124,7 @@ export function ItemForm({ pipelineId, template, defaultCurrency }: ItemFormProp
                 name={`metadata.${field.name}`}
                 type={field.type}
                 placeholder={field.placeholder}
+                defaultValue={String(metadataValue(meta, field.name) ?? "")}
               />
               {field.hint && (
                 <p className="text-xs text-muted-foreground">{field.hint}</p>
@@ -75,15 +134,43 @@ export function ItemForm({ pipelineId, template, defaultCurrency }: ItemFormProp
         </fieldset>
       )}
 
-      {showSalary && <SalaryFields defaultCurrency={defaultCurrency} />}
-      {showDealValue && <DealValueFields defaultCurrency={defaultCurrency} />}
-      {showInvestment && <InvestmentFields defaultCurrency={defaultCurrency} />}
+      {showSalary && (
+        <SalaryFields
+          defaultCurrency={defaultCurrency}
+          salaryMin={metadataValue(meta, "salaryMin")}
+          salaryMax={metadataValue(meta, "salaryMax")}
+          salaryCurrency={metadataValue(meta, "salaryCurrency") as string | undefined}
+        />
+      )}
+      {showDealValue && (
+        <DealValueFields
+          defaultCurrency={defaultCurrency}
+          dealValue={metadataValue(meta, "dealValue")}
+          dealCurrency={metadataValue(meta, "dealCurrency") as string | undefined}
+        />
+      )}
+      {showInvestment && (
+        <InvestmentFields
+          defaultCurrency={defaultCurrency}
+          assetType={metadataValue(meta, "assetType") as string | undefined}
+          ticker={metadataValue(meta, "ticker") as string | undefined}
+          amountInvested={metadataValue(meta, "amountInvested")}
+          currentValue={metadataValue(meta, "currentValue")}
+          currency={metadataValue(meta, "currency") as string | undefined}
+        />
+      )}
 
       <fieldset className="space-y-4">
         <legend className="text-sm font-medium">Extras</legend>
         <div className="space-y-2">
-          <Label htmlFor="externalUrl">Job posting link</Label>
-          <Input id="externalUrl" name="externalUrl" type="url" placeholder="https://" />
+          <Label htmlFor="externalUrl">{urlLabels.label}</Label>
+          <Input
+            id="externalUrl"
+            name="externalUrl"
+            type="url"
+            placeholder="https://"
+            defaultValue={initial?.externalUrl ?? ""}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="notes">Notes</Label>
@@ -92,6 +179,7 @@ export function ItemForm({ pipelineId, template, defaultCurrency }: ItemFormProp
             name="notes"
             rows={4}
             placeholder="Recruiter name, interview tips, anything useful…"
+            defaultValue={initial?.notes ?? ""}
           />
         </div>
       </fieldset>
@@ -102,7 +190,7 @@ export function ItemForm({ pipelineId, template, defaultCurrency }: ItemFormProp
         </p>
       )}
       <Button type="submit" disabled={pending} className="w-full sm:w-auto">
-        {pending ? "Saving…" : "Add item"}
+        {pending ? "Saving…" : isEdit ? "Save changes" : "Add item"}
       </Button>
     </form>
   );

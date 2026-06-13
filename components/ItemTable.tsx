@@ -1,6 +1,11 @@
 import Link from "next/link";
 import type { Item, PipelineTemplate, Stage } from "@prisma/client";
-import { getInvestmentDisplay, getSalaryDisplay } from "@/lib/items/formatMetadata";
+import {
+  getDeadlineDisplay,
+  getDealValueDisplay,
+  getInvestmentDisplay,
+  getSalaryDisplay,
+} from "@/lib/items/formatMetadata";
 import { StageBadge } from "@/components/StageBadge";
 import {
   Table,
@@ -19,10 +24,41 @@ type ItemTableProps = {
   items: (Item & { currentStage: Stage })[];
 };
 
+function getValueColumn(template: PipelineTemplate) {
+  switch (template) {
+    case "JOB_SEARCH":
+      return { show: true, label: "Salary" };
+    case "INVESTMENTS":
+      return { show: true, label: "Value" };
+    case "SALES":
+      return { show: true, label: "Deal value" };
+    case "GRAD_SCHOOL":
+      return { show: true, label: "Deadline" };
+    default:
+      return { show: false, label: "" };
+  }
+}
+
+function getItemValue(
+  template: PipelineTemplate,
+  metadata: unknown,
+): string | null {
+  switch (template) {
+    case "JOB_SEARCH":
+      return getSalaryDisplay(metadata);
+    case "INVESTMENTS":
+      return getInvestmentDisplay(metadata);
+    case "SALES":
+      return getDealValueDisplay(metadata);
+    case "GRAD_SCHOOL":
+      return getDeadlineDisplay(metadata);
+    default:
+      return null;
+  }
+}
+
 export function ItemTable({ pipelineId, template, items }: ItemTableProps) {
-  const showSalary = template === "JOB_SEARCH";
-  const showValue = template === "INVESTMENTS";
-  const valueLabel = showValue ? "Value" : "Salary";
+  const valueColumn = getValueColumn(template);
 
   if (items.length === 0) {
     return (
@@ -46,18 +82,14 @@ export function ItemTable({ pipelineId, template, items }: ItemTableProps) {
       <TableHeader>
         <TableRow>
           <TableHead>Title</TableHead>
-          {(showSalary || showValue) && <TableHead>{valueLabel}</TableHead>}
+          {valueColumn.show && <TableHead>{valueColumn.label}</TableHead>}
           <TableHead>Stage</TableHead>
           <TableHead>Started</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {items.map((item) => {
-          const value = showSalary
-            ? getSalaryDisplay(item.metadata)
-            : showValue
-              ? getInvestmentDisplay(item.metadata)
-              : null;
+          const value = getItemValue(template, item.metadata);
           return (
             <TableRow key={item.id} className="hover:bg-muted/30">
               <TableCell>
@@ -71,7 +103,7 @@ export function ItemTable({ pipelineId, template, items }: ItemTableProps) {
                   <p className="text-xs text-muted-foreground">{item.subtitle}</p>
                 )}
               </TableCell>
-              {(showSalary || showValue) && (
+              {valueColumn.show && (
                 <TableCell className="text-muted-foreground">
                   {value ?? "—"}
                 </TableCell>

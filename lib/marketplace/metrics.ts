@@ -4,6 +4,7 @@ export type TemplateMetrics = {
   commentCount: number;
   ratingCount: number;
   averageRating: number | null;
+  pipelineCount: number;
 };
 
 export function computeAverageRating(ratingSum: number, ratingCount: number): number | null {
@@ -17,6 +18,7 @@ export function toTemplateMetrics(data: {
   commentCount: number;
   ratingSum: number;
   ratingCount: number;
+  pipelineCount?: number;
 }): TemplateMetrics {
   return {
     likeCount: data.likeCount,
@@ -24,5 +26,6 @@ export function toTemplateMetrics(data: {
     commentCount: data.commentCount,
     ratingCount: data.ratingCount,
     averageRating: computeAverageRating(data.ratingSum, data.ratingCount),
+    pipelineCount: data.pipelineCount ?? 0,
   };
 }

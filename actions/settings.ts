@@ -1,9 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import bcrypt from "bcryptjs";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { updateSettingsSchema } from "@/lib/validations";
+import { changePasswordSchema, updateSettingsSchema } from "@/lib/validations";
 
 export type SettingsActionState = {
   error?: string;
@@ -36,5 +37,48 @@ export async function updateUserSettings(
 
   revalidatePath("/settings");
   revalidatePath("/");
+  return { success: true };
+}
+
+export async function changePassword(
+  _prev: SettingsActionState,
+  formData: FormData,
+): Promise<SettingsActionState> {
+  const session = await auth();
+  if (!session?.user?.id) return { error: "Unauthorized" };
+
+  const parsed = changePasswordSchema.safeParse({
+    currentPassword: formData.get("currentPassword"),
+    newPassword: formData.get("newPassword"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { passwordHash: true },
+  });
+
+  if (!user?.passwordHash) {
+    return { error: "Password change is not available for this account" };
+  }
+
+  const valid = await bcrypt.compare(
+    parsed.data.currentPassword,
+    user.passwordHash,
+  );
+  if (!valid) {
+    return { error: "Current password is incorrect" };
+  }
+
+  const passwordHash = await bcrypt.hash(parsed.data.newPassword, 12);
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { passwordHash },
+  });
+
   return { success: true };
 }

@@ -18,6 +18,7 @@ describe("marketplace utilities", () => {
     });
     expect(metrics.averageRating).toBeCloseTo(4.3, 1);
     expect(metrics.likeCount).toBe(5);
+    expect(metrics.pipelineCount).toBe(0);
   });
 
   it("parses marketplace sort params", () => {

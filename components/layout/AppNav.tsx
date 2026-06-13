@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Settings } from "lucide-react";
 import { signOutUser } from "@/actions/auth";
 import { MobileNav } from "@/components/layout/MobileNav";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 
 const NAV_LINKS = [
@@ -36,6 +37,7 @@ export function AppNav() {
           >
             <Settings className="size-5" />
           </Link>
+          <ThemeToggle />
           <form action={signOutUser}>
             <Button type="submit" variant="ghost" size="sm">
               Sign out

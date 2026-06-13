@@ -6,11 +6,21 @@ import { Label } from "@/components/ui/label";
 type InvestmentFieldsProps = {
   defaultCurrency: string;
   prefix?: string;
+  assetType?: string;
+  ticker?: string;
+  amountInvested?: number | string;
+  currentValue?: number | string;
+  currency?: string;
 };
 
 export function InvestmentFields({
   defaultCurrency,
   prefix = "metadata",
+  assetType,
+  ticker,
+  amountInvested,
+  currentValue,
+  currency,
 }: InvestmentFieldsProps) {
   return (
     <fieldset className="space-y-4 rounded-lg border bg-muted/20 p-4">
@@ -22,7 +32,7 @@ export function InvestmentFields({
             id={`${prefix}.assetType`}
             name={`${prefix}.assetType`}
             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
-            defaultValue="stock"
+            defaultValue={assetType ?? "stock"}
           >
             {ASSET_TYPES.map((type) => (
               <option key={type.value} value={type.value}>
@@ -37,6 +47,7 @@ export function InvestmentFields({
             id={`${prefix}.ticker`}
             name={`${prefix}.ticker`}
             placeholder="AAPL, BTC, VTI"
+            defaultValue={ticker ?? ""}
           />
         </div>
       </div>
@@ -50,6 +61,7 @@ export function InvestmentFields({
             min={0}
             step={0.01}
             placeholder="10000"
+            defaultValue={amountInvested ?? ""}
           />
         </div>
         <div className="space-y-2">
@@ -61,6 +73,7 @@ export function InvestmentFields({
             min={0}
             step={0.01}
             placeholder="12500"
+            defaultValue={currentValue ?? ""}
           />
         </div>
       </div>
@@ -69,7 +82,7 @@ export function InvestmentFields({
         <CurrencySelect
           id={`${prefix}.currency`}
           name={`${prefix}.currency`}
-          defaultValue={defaultCurrency}
+          defaultValue={currency ?? defaultCurrency}
         />
       </div>
     </fieldset>

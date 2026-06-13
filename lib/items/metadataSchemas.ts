@@ -81,3 +81,14 @@ export const METADATA_FIELDS: Record<PipelineTemplate, MetadataField[]> = {
 export const HAS_SALARY_FIELDS: PipelineTemplate[] = ["JOB_SEARCH"];
 export const HAS_DEAL_VALUE_FIELDS: PipelineTemplate[] = ["SALES"];
 export const HAS_INVESTMENT_FIELDS: PipelineTemplate[] = ["INVESTMENTS"];
+
+export const EXTERNAL_URL_LABELS: Record<
+  PipelineTemplate,
+  { label: string; linkText: string }
+> = {
+  JOB_SEARCH: { label: "Job posting link", linkText: "View posting" },
+  GRAD_SCHOOL: { label: "Program page link", linkText: "View program" },
+  SALES: { label: "CRM or deal link", linkText: "View deal" },
+  INVESTMENTS: { label: "Research link", linkText: "View source" },
+  CUSTOM: { label: "External link", linkText: "Open link" },
+};

@@ -138,3 +138,19 @@ export function getSalaryDisplay(
     ) ?? m.salaryRange ?? null
   );
 }
+
+export function getDealValueDisplay(
+  metadata: unknown,
+  fallbackCurrency: string = DEFAULT_CURRENCY,
+): string | null {
+  if (!metadata || typeof metadata !== "object") return null;
+  const m = metadata as SalesMetadata;
+  if (m.dealValue == null) return null;
+  return formatMoney(m.dealValue, m.dealCurrency ?? fallbackCurrency);
+}
+
+export function getDeadlineDisplay(metadata: unknown): string | null {
+  if (!metadata || typeof metadata !== "object") return null;
+  const m = metadata as GradMetadata;
+  return m.deadline ?? null;
+}

@@ -51,7 +51,7 @@ export async function getPipelineForUser(
 
 export async function getUserPipelines(userId: string) {
   return prisma.pipeline.findMany({
-    where: { userId },
+    where: { userId, isArchived: false },
     include: {
       _count: { select: { items: true } },
       stages: true,

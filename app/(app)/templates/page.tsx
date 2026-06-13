@@ -103,7 +103,23 @@ export default async function TemplatesPage({
                   {template.stages.map((s) => s.name).join(" → ")}
                 </p>
                 {template.isPublic && (
-                  <TemplateMetrics metrics={toTemplateMetrics(template)} compact />
+                  <TemplateMetrics
+                    metrics={toTemplateMetrics({
+                      likeCount: template.likeCount,
+                      copyCount: template.copyCount,
+                      commentCount: template.commentCount,
+                      ratingSum: template.ratingSum,
+                      ratingCount: template.ratingCount,
+                      pipelineCount: template._count.pipelines,
+                    })}
+                    compact
+                  />
+                )}
+                {!template.isPublic && template._count.pipelines > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    Used in {template._count.pipelines} pipeline
+                    {template._count.pipelines === 1 ? "" : "s"}
+                  </p>
                 )}
                 <div className="flex flex-wrap items-center gap-2">
                   <PublishTemplateButton

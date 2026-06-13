@@ -14,48 +14,54 @@ enum PipelineTemplate {
   CUSTOM
 }
 
+// Field order convention: id → scalars → FK scalars → relations → timestamps → indexes
+
 model User {
-  id               String             @id @default(cuid())
-  name             String?
-  email            String             @unique
-  emailVerified    DateTime?
-  passwordHash     String?
-  image            String?
-  defaultCurrency  String             @default("USD")
+  id              String   @id @default(cuid())
+  name            String?
+  email           String   @unique
+  emailVerified   DateTime?
+  passwordHash    String?
+  image           String?
+  defaultCurrency String   @default("USD")
+
   pipelines        Pipeline[]
   userTemplates    UserTemplate[]
   templateLikes    TemplateLike[]
   templateRatings  TemplateRating[]
   templateComments TemplateComment[]
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model UserTemplate {
-  id           String              @id @default(cuid())
-  userId       String
-  name         String
-  description  String?
-  isPublic     Boolean             @default(false)
-  publishedAt  DateTime?
+  id                 String    @id @default(cuid())
+  userId             String
+  name               String
+  description        String?
+  isPublic           Boolean   @default(false)
+  publishedAt        DateTime?
   forkedFromId       String?
-  isLinkedToSource   Boolean             @default(false)
-  likeCount          Int                 @default(0)
-  copyCount    Int                 @default(0)
-  ratingSum    Int                 @default(0)
-  ratingCount  Int                 @default(0)
-  commentCount      Int                 @default(0)
-  pendingSourceSync Boolean             @default(false)
-  stages            UserTemplateStage[]
-  pipelines         Pipeline[]
-  likes             TemplateLike[]
-  ratings           TemplateRating[]
-  comments          TemplateComment[]
-  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  forkedFrom        UserTemplate?       @relation("TemplateForks", fields: [forkedFromId], references: [id], onDelete: SetNull)
-  forks             UserTemplate[]      @relation("TemplateForks")
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
+  isLinkedToSource   Boolean   @default(false)
+  likeCount          Int       @default(0)
+  copyCount          Int       @default(0)
+  ratingSum          Int       @default(0)
+  ratingCount        Int       @default(0)
+  commentCount       Int       @default(0)
+  pendingSourceSync  Boolean   @default(false)
+
+  user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  forkedFrom UserTemplate?       @relation("TemplateForks", fields: [forkedFromId], references: [id], onDelete: SetNull)
+  forks      UserTemplate[]      @relation("TemplateForks")
+  stages     UserTemplateStage[]
+  pipelines  Pipeline[]
+  likes      TemplateLike[]
+  ratings    TemplateRating[]
+  comments   TemplateComment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([isPublic, publishedAt])
@@ -65,55 +71,62 @@ model UserTemplate {
 }
 
 model UserTemplateStage {
-  id             String       @id @default(cuid())
+  id             String  @id @default(cuid())
   userTemplateId String
   name           String
   slug           String
   sortOrder      Int
-  isEntry        Boolean      @default(false)
-  isTerminal     Boolean      @default(false)
+  isEntry        Boolean @default(false)
+  isTerminal     Boolean @default(false)
   color          String?
-  userTemplate   UserTemplate @relation(fields: [userTemplateId], references: [id], onDelete: Cascade)
+
+  userTemplate UserTemplate @relation(fields: [userTemplateId], references: [id], onDelete: Cascade)
 
   @@unique([userTemplateId, slug])
   @@index([userTemplateId, sortOrder])
 }
 
 model TemplateLike {
-  id             String       @id @default(cuid())
+  id             String @id @default(cuid())
   userId         String
   userTemplateId String
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userTemplate   UserTemplate @relation(fields: [userTemplateId], references: [id], onDelete: Cascade)
-  createdAt      DateTime     @default(now())
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userTemplate UserTemplate @relation(fields: [userTemplateId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 
   @@unique([userId, userTemplateId])
   @@index([userTemplateId])
 }
 
 model TemplateRating {
-  id             String       @id @default(cuid())
+  id             String @id @default(cuid())
   userId         String
   userTemplateId String
   rating         Int
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userTemplate   UserTemplate @relation(fields: [userTemplateId], references: [id], onDelete: Cascade)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userTemplate UserTemplate @relation(fields: [userTemplateId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, userTemplateId])
   @@index([userTemplateId])
 }
 
 model TemplateComment {
-  id             String       @id @default(cuid())
+  id             String @id @default(cuid())
   userId         String
   userTemplateId String
   content        String
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userTemplate   UserTemplate @relation(fields: [userTemplateId], references: [id], onDelete: Cascade)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userTemplate UserTemplate @relation(fields: [userTemplateId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userTemplateId, createdAt])
 }
@@ -123,28 +136,32 @@ model Pipeline {
   userId         String
   userTemplateId String?
   name           String
+  isArchived     Boolean          @default(false)
   template       PipelineTemplate
-  stages         Stage[]
-  items          Item[]
-  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userTemplate   UserTemplate?    @relation(fields: [userTemplateId], references: [id], onDelete: SetNull)
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userTemplate UserTemplate? @relation(fields: [userTemplateId], references: [id], onDelete: SetNull)
+  stages       Stage[]
+  items        Item[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([userTemplateId])
 }
 
 model Stage {
-  id         String       @id @default(cuid())
+  id         String  @id @default(cuid())
   pipelineId String
   name       String
   slug       String
   sortOrder  Int
-  isEntry    Boolean      @default(false)
-  isTerminal Boolean      @default(false)
-  isArchived Boolean      @default(false)
+  isEntry    Boolean @default(false)
+  isTerminal Boolean @default(false)
+  isArchived Boolean @default(false)
   color      String?
+
   pipeline   Pipeline     @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
   items      Item[]       @relation("CurrentStage")
   eventsFrom StageEvent[] @relation("FromStage")
@@ -155,20 +172,22 @@ model Stage {
 }
 
 model Item {
-  id             String       @id @default(cuid())
+  id             String   @id @default(cuid())
   pipelineId     String
+  currentStageId String
   title          String
   subtitle       String?
   notes          String?
   externalUrl    String?
   metadata       Json?
-  startedAt      DateTime     @default(now())
-  currentStageId String
-  pipeline       Pipeline     @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
-  currentStage   Stage        @relation("CurrentStage", fields: [currentStageId], references: [id])
-  stageEvents    StageEvent[]
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  startedAt      DateTime @default(now())
+
+  pipeline     Pipeline     @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  currentStage Stage        @relation("CurrentStage", fields: [currentStageId], references: [id])
+  stageEvents  StageEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([pipelineId])
   @@index([pipelineId, currentStageId])
@@ -180,9 +199,10 @@ model StageEvent {
   fromStageId String?
   toStageId   String
   occurredAt  DateTime @default(now())
-  item        Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  fromStage   Stage?   @relation("FromStage", fields: [fromStageId], references: [id], onDelete: SetNull)
-  toStage     Stage    @relation("ToStage", fields: [toStageId], references: [id], onDelete: Cascade)
+
+  item      Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  fromStage Stage? @relation("FromStage", fields: [fromStageId], references: [id], onDelete: SetNull)
+  toStage   Stage  @relation("ToStage", fields: [toStageId], references: [id], onDelete: Cascade)
 
   @@index([itemId])
   @@index([toStageId])

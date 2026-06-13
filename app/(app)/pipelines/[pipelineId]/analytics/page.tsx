@@ -2,11 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { computeDurationAnalytics } from "@/lib/analytics/durations";
 import { getPipelineForUser } from "@/lib/pipelines/createPipelineFromTemplate";
 import { buildSankeyData } from "@/lib/sankey/buildSankeyData";
 import { computePipelineStats } from "@/lib/sankey/stats";
 import { getUserDefaultCurrency } from "@/lib/user";
+import { DurationAnalyticsPanel } from "@/components/DurationAnalyticsPanel";
 import { InvestmentBreakdown } from "@/components/InvestmentBreakdown";
+import { PipelineExportButton } from "@/components/PipelineExportButton";
 import { SankeyChart } from "@/components/SankeyChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -27,21 +30,37 @@ export default async function AnalyticsPage({
     orderBy: { occurredAt: "asc" },
   });
 
+  const itemsWithEvents = await prisma.item.findMany({
+    where: { pipelineId },
+    include: {
+      currentStage: true,
+      stageEvents: { include: { fromStage: true, toStage: true } },
+    },
+  });
+
   const sankeyData = buildSankeyData(pipeline.stages, events);
   const stats = computePipelineStats(pipeline.items, pipeline.template);
+  const durationAnalytics = computeDurationAnalytics(
+    itemsWithEvents,
+    pipeline.stages,
+    events,
+  );
   const defaultCurrency = await getUserDefaultCurrency(session!.user!.id);
   const isInvestments = pipeline.template === "INVESTMENTS";
 
   return (
     <div className="space-y-6">
-      <div>
-        <Link
-          href={`/pipelines/${pipelineId}`}
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          ← Back to {pipeline.name}
-        </Link>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Analytics</h1>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <Link
+            href={`/pipelines/${pipelineId}`}
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
+            ← Back to {pipeline.name}
+          </Link>
+          <h1 className="mt-2 text-2xl font-semibold tracking-tight">Analytics</h1>
+        </div>
+        <PipelineExportButton pipelineId={pipelineId} />
       </div>
 
       {isInvestments && (
@@ -76,6 +95,8 @@ export default async function AnalyticsPage({
           </CardContent>
         </Card>
       </div>
+
+      <DurationAnalyticsPanel analytics={durationAnalytics} />
 
       <Card>
         <CardHeader>

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getUserById } from "@/lib/user";
+import { ChangePasswordForm } from "@/components/settings/ChangePasswordForm";
 import { SettingsForm } from "@/components/settings/SettingsForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -33,6 +34,16 @@ export default async function SettingsPage() {
             email={user.email}
             defaultCurrency={user.defaultCurrency}
           />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Password</CardTitle>
+          <CardDescription>Update your account password.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChangePasswordForm />
         </CardContent>
       </Card>
     </div>

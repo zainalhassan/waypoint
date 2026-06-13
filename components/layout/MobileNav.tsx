@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, Settings, X } from "lucide-react";
 import { signOutUser } from "@/actions/auth";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -82,6 +83,10 @@ export function MobileNav() {
                   <Settings className="size-4" />
                   Settings
                 </Link>
+              </li>
+              <li className="flex items-center gap-2 px-4 py-2">
+                <ThemeToggle />
+                <span className="text-sm text-muted-foreground">Toggle theme</span>
               </li>
               <li className="mt-2 border-t pt-2">
                 <form action={signOutUser}>

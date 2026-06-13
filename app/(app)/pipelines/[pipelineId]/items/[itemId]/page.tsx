@@ -2,7 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { EXTERNAL_URL_LABELS } from "@/lib/items/metadataSchemas";
 import { getPipelineForUser } from "@/lib/pipelines/createPipelineFromTemplate";
+import { getUserDefaultCurrency } from "@/lib/user";
+import { ItemActions } from "@/components/ItemActions";
 import { ItemMetadataDisplay } from "@/components/ItemMetadataDisplay";
 import { StageBadge } from "@/components/StageBadge";
 import { StageTimeline } from "@/components/StageTimeline";
@@ -33,6 +36,9 @@ export default async function ItemDetailPage({
 
   if (!item) notFound();
 
+  const defaultCurrency = await getUserDefaultCurrency(session!.user!.id);
+  const urlLabels = EXTERNAL_URL_LABELS[pipeline.template];
+
   return (
     <div className="space-y-6">
       <div>
@@ -52,6 +58,14 @@ export default async function ItemDetailPage({
         {item.subtitle && (
           <p className="mt-1 text-muted-foreground">{item.subtitle}</p>
         )}
+        <div className="mt-4">
+          <ItemActions
+            pipelineId={pipelineId}
+            template={pipeline.template}
+            defaultCurrency={defaultCurrency}
+            item={item}
+          />
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -67,14 +81,14 @@ export default async function ItemDetailPage({
             />
             {item.externalUrl && (
               <p>
-                <span className="text-muted-foreground">Link: </span>
+                <span className="text-muted-foreground">{urlLabels.label}: </span>
                 <a
                   href={item.externalUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="font-medium text-primary hover:underline"
                 >
-                  View posting →
+                  {urlLabels.linkText} →
                 </a>
               </p>
             )}

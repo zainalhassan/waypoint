@@ -1,4 +1,4 @@
-import { Copy, Heart, MessageCircle, Star } from "lucide-react";
+import { Copy, Heart, LayoutGrid, MessageCircle, Star } from "lucide-react";
 import type { TemplateMetrics as Metrics } from "@/lib/marketplace/metrics";
 
 type TemplateMetricsProps = {
@@ -22,6 +22,11 @@ export function TemplateMetrics({ metrics, compact }: TemplateMetricsProps) {
       icon: Copy,
       label: String(metrics.copyCount),
       hint: "Copies",
+    },
+    {
+      icon: LayoutGrid,
+      label: String(metrics.pipelineCount),
+      hint: "Pipelines using",
     },
     {
       icon: MessageCircle,

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { getMetadataDisplayRows, getInvestmentDisplay, getSalaryDisplay } from "@/lib/items/formatMetadata";
+import {
+  getDeadlineDisplay,
+  getDealValueDisplay,
+  getMetadataDisplayRows,
+  getInvestmentDisplay,
+  getSalaryDisplay,
+} from "@/lib/items/formatMetadata";
 import { getMetadataSchema } from "@/lib/items/metadataSchemas";
 
 describe("metadata schemas and display", () => {
@@ -50,5 +56,15 @@ describe("metadata schemas and display", () => {
     expect(
       getSalaryDisplay({ salaryMin: 90000, salaryMax: 110000, salaryCurrency: "USD" }),
     ).toContain("–");
+  });
+
+  it("displays deal value for sales", () => {
+    expect(getDealValueDisplay({ dealValue: 50000, dealCurrency: "USD" })).toMatch(
+      /50/,
+    );
+  });
+
+  it("displays grad school deadline", () => {
+    expect(getDeadlineDisplay({ deadline: "Jan 15, 2027" })).toBe("Jan 15, 2027");
   });
 });

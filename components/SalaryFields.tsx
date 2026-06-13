@@ -8,6 +8,9 @@ type SalaryFieldsProps = {
   minLabel?: string;
   maxLabel?: string;
   currencyName?: string;
+  salaryMin?: number | string;
+  salaryMax?: number | string;
+  salaryCurrency?: string;
 };
 
 export function SalaryFields({
@@ -16,6 +19,9 @@ export function SalaryFields({
   minLabel = "Salary from",
   maxLabel = "Salary to",
   currencyName = "salaryCurrency",
+  salaryMin,
+  salaryMax,
+  salaryCurrency,
 }: SalaryFieldsProps) {
   return (
     <fieldset className="space-y-4 rounded-lg border bg-muted/20 p-4">
@@ -33,6 +39,7 @@ export function SalaryFields({
             min={0}
             step={1000}
             placeholder="120000"
+            defaultValue={salaryMin ?? ""}
           />
         </div>
         <div className="space-y-2">
@@ -44,6 +51,7 @@ export function SalaryFields({
             min={0}
             step={1000}
             placeholder="150000"
+            defaultValue={salaryMax ?? ""}
           />
         </div>
       </div>
@@ -52,7 +60,7 @@ export function SalaryFields({
         <CurrencySelect
           id={`${prefix}.${currencyName}`}
           name={`${prefix}.${currencyName}`}
-          defaultValue={defaultCurrency}
+          defaultValue={salaryCurrency ?? defaultCurrency}
         />
       </div>
     </fieldset>

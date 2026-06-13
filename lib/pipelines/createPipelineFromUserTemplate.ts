@@ -43,7 +43,7 @@ export async function getUserTemplates(userId: string) {
     include: {
       stages: { orderBy: { sortOrder: "asc" } },
       forkedFrom: { select: { id: true, name: true, isPublic: true } },
-      _count: { select: { stages: true } },
+      _count: { select: { stages: true, pipelines: true } },
     },
     orderBy: { updatedAt: "desc" },
   });

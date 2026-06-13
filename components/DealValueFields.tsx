@@ -4,9 +4,15 @@ import { Label } from "@/components/ui/label";
 
 type DealValueFieldsProps = {
   defaultCurrency: string;
+  dealValue?: number | string;
+  dealCurrency?: string;
 };
 
-export function DealValueFields({ defaultCurrency }: DealValueFieldsProps) {
+export function DealValueFields({
+  defaultCurrency,
+  dealValue,
+  dealCurrency,
+}: DealValueFieldsProps) {
   return (
     <fieldset className="space-y-4 rounded-lg border bg-muted/20 p-4">
       <legend className="px-1 text-sm font-medium">Deal value</legend>
@@ -20,6 +26,7 @@ export function DealValueFields({ defaultCurrency }: DealValueFieldsProps) {
             min={0}
             step={100}
             placeholder="50000"
+            defaultValue={dealValue ?? ""}
           />
         </div>
         <div className="space-y-2">
@@ -27,7 +34,7 @@ export function DealValueFields({ defaultCurrency }: DealValueFieldsProps) {
           <CurrencySelect
             id="metadata.dealCurrency"
             name="metadata.dealCurrency"
-            defaultValue={defaultCurrency}
+            defaultValue={dealCurrency ?? defaultCurrency}
           />
         </div>
       </div>

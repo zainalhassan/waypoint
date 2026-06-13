@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import { getMarketplaceTemplates, parseMarketplaceSort } from "@/lib/marketplace/queries";
+import { MarketplaceSearch } from "@/components/MarketplaceSearch";
 import { MarketplaceSortTabs } from "@/components/MarketplaceSortTabs";
 import { MarketplaceTemplateCard } from "@/components/MarketplaceTemplateCard";
 import { buttonVariants } from "@/components/ui/button";
@@ -9,12 +11,16 @@ import { cn } from "@/lib/utils";
 export default async function MarketplacePage({
   searchParams,
 }: {
-  searchParams: Promise<{ sort?: string }>;
+  searchParams: Promise<{ sort?: string; q?: string; minStages?: string }>;
 }) {
-  const { sort: sortParam } = await searchParams;
-  const sort = parseMarketplaceSort(sortParam);
+  const params = await searchParams;
+  const sort = parseMarketplaceSort(params.sort);
+  const minStages = params.minStages ? Number(params.minStages) : undefined;
   const session = await auth();
-  const templates = await getMarketplaceTemplates(sort);
+  const templates = await getMarketplaceTemplates(sort, {
+    q: params.q,
+    minStages: minStages && !Number.isNaN(minStages) ? minStages : undefined,
+  });
 
   return (
     <div className="space-y-6">
@@ -30,15 +36,22 @@ export default async function MarketplacePage({
         </Link>
       </div>
 
+      <Suspense fallback={null}>
+        <MarketplaceSearch
+          currentQ={params.q}
+          currentMinStages={params.minStages}
+        />
+      </Suspense>
+
       <MarketplaceSortTabs current={sort} />
 
       {templates.length === 0 ? (
         <div className="rounded-lg border border-dashed p-10 text-center">
-          <p className="font-medium">No public templates yet</p>
+          <p className="font-medium">No templates match your search</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Be the first to share a template from{" "}
-            <Link href="/templates" className="text-primary hover:underline">
-              My templates
+            Try different keywords or{" "}
+            <Link href="/marketplace" className="text-primary hover:underline">
+              clear filters
             </Link>
             .
           </p>
