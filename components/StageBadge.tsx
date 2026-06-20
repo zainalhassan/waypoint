@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { RouteChip } from "@/components/transit/RouteChip";
 import { cn } from "@/lib/utils";
 
 type StageBadgeProps = {
@@ -9,20 +9,10 @@ type StageBadgeProps = {
 
 export function StageBadge({ name, color, className }: StageBadgeProps) {
   return (
-    <Badge
-      variant="secondary"
-      className={cn("font-medium", className)}
-      style={
-        color
-          ? {
-              backgroundColor: `${color}20`,
-              color,
-              borderColor: `${color}40`,
-            }
-          : undefined
-      }
-    >
-      {name}
-    </Badge>
+    <RouteChip
+      label={name}
+      color={color}
+      className={cn(!color && "bg-secondary text-secondary-foreground", className)}
+    />
   );
 }

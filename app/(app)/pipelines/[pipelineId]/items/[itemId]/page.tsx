@@ -3,11 +3,13 @@ import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { EXTERNAL_URL_LABELS } from "@/lib/items/metadataSchemas";
+import { getItemHeroMetric } from "@/lib/items/formatMetadata";
 import { getPipelineForUser } from "@/lib/pipelines/createPipelineFromTemplate";
 import { getUserDefaultCurrency } from "@/lib/user";
 import { ItemActions } from "@/components/ItemActions";
 import { ItemMetadataDisplay } from "@/components/ItemMetadataDisplay";
-import { StageBadge } from "@/components/StageBadge";
+import { HeroCard } from "@/components/transit/HeroCard";
+import { MobileShell } from "@/components/transit/MobileShell";
 import { StageTimeline } from "@/components/StageTimeline";
 import { StageUpdateForm } from "@/components/StageUpdateForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,105 +40,117 @@ export default async function ItemDetailPage({
 
   const defaultCurrency = await getUserDefaultCurrency(session!.user!.id);
   const urlLabels = EXTERNAL_URL_LABELS[pipeline.template];
+  const heroMetric = getItemHeroMetric(pipeline.template, item.metadata);
+
+  const hero = (
+    <div className="space-y-3">
+      <Link
+        href={`/pipelines/${pipelineId}`}
+        className="inline-flex text-sm font-medium text-muted-foreground hover:text-foreground"
+      >
+        ← Back to {pipeline.name}
+      </Link>
+      <HeroCard
+        headerLabel={item.currentStage.name}
+        headerColor={item.currentStage.color}
+        heroLabel={heroMetric.label}
+        heroValue={heroMetric.value}
+        heroHint={heroMetric.fallback}
+        meta={[
+          item.title,
+          ...(item.subtitle ? [item.subtitle] : []),
+          `Tracking since ${item.startedAt.toLocaleDateString(undefined, { dateStyle: "medium" })}`,
+        ]}
+      />
+      <ItemActions
+        pipelineId={pipelineId}
+        template={pipeline.template}
+        defaultCurrency={defaultCurrency}
+        item={item}
+      />
+    </div>
+  );
+
+  const detailsCard = (
+    <Card className="rounded-[var(--radius-card)]">
+      <CardHeader>
+        <CardTitle>Details</CardTitle>
+        <CardDescription>Supporting information for this item</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4 text-sm">
+        <ItemMetadataDisplay template={pipeline.template} metadata={item.metadata} />
+        {item.externalUrl && (
+          <p>
+            <span className="text-muted-foreground">{urlLabels.label}: </span>
+            <a
+              href={item.externalUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-primary hover:underline"
+            >
+              {urlLabels.linkText} →
+            </a>
+          </p>
+        )}
+        {item.notes && (
+          <div>
+            <p className="mb-1 text-muted-foreground">Notes</p>
+            <p className="whitespace-pre-wrap rounded-md bg-muted/30 p-3">{item.notes}</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const stageCard = (
+    <Card className="rounded-[var(--radius-card)]">
+      <CardHeader>
+        <CardTitle>Update stage</CardTitle>
+        <CardDescription>
+          Move this item as progress changes — each update is logged in your timeline.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <StageUpdateForm
+          pipelineId={pipelineId}
+          itemId={itemId}
+          stages={pipeline.stages.filter(
+            (s) => !s.isArchived || s.id === item.currentStageId,
+          )}
+          currentStageId={item.currentStageId}
+        />
+      </CardContent>
+    </Card>
+  );
+
+  const timelineCard = (
+    <Card className="rounded-[var(--radius-card)]">
+      <CardHeader>
+        <CardTitle>Timeline</CardTitle>
+        <CardDescription>Every stage change you&apos;ve made</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <StageTimeline events={item.stageEvents} />
+      </CardContent>
+    </Card>
+  );
 
   return (
-    <div className="space-y-6">
-      <div>
-        <Link
-          href={`/pipelines/${pipelineId}`}
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          ← Back to {pipeline.name}
-        </Link>
-        <div className="mt-2 flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight">{item.title}</h1>
-          <StageBadge
-            name={item.currentStage.name}
-            color={item.currentStage.color}
-          />
-        </div>
-        {item.subtitle && (
-          <p className="mt-1 text-muted-foreground">{item.subtitle}</p>
-        )}
-        <div className="mt-4">
-          <ItemActions
-            pipelineId={pipelineId}
-            template={pipeline.template}
-            defaultCurrency={defaultCurrency}
-            item={item}
-          />
-        </div>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Details</CardTitle>
-            <CardDescription>Key information about this item</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm">
-            <ItemMetadataDisplay
-              template={pipeline.template}
-              metadata={item.metadata}
-            />
-            {item.externalUrl && (
-              <p>
-                <span className="text-muted-foreground">{urlLabels.label}: </span>
-                <a
-                  href={item.externalUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-medium text-primary hover:underline"
-                >
-                  {urlLabels.linkText} →
-                </a>
-              </p>
-            )}
-            {item.notes && (
-              <div>
-                <p className="mb-1 text-muted-foreground">Notes</p>
-                <p className="whitespace-pre-wrap rounded-md bg-muted/30 p-3">
-                  {item.notes}
-                </p>
-              </div>
-            )}
-            <p className="text-muted-foreground">
-              Tracking since {item.startedAt.toLocaleDateString(undefined, {
-                dateStyle: "medium",
-              })}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Update stage</CardTitle>
-            <CardDescription>
-              Move this item as progress changes — each update is logged in your timeline.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <StageUpdateForm
-              pipelineId={pipelineId}
-              itemId={itemId}
-              stages={pipeline.stages.filter(
-                (s) => !s.isArchived || s.id === item.currentStageId,
-              )}
-              currentStageId={item.currentStageId}
-            />
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Timeline</CardTitle>
-          <CardDescription>Every stage change you&apos;ve made</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <StageTimeline events={item.stageEvents} />
-        </CardContent>
-      </Card>
-    </div>
+    <MobileShell
+      hero={hero}
+      desktop={
+        <>
+          <div className="grid gap-6 lg:grid-cols-2">
+            {detailsCard}
+            {stageCard}
+          </div>
+          {timelineCard}
+        </>
+      }
+    >
+      {detailsCard}
+      {stageCard}
+      {timelineCard}
+    </MobileShell>
   );
 }

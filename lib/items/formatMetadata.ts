@@ -38,6 +38,12 @@ export type MetadataDisplayRow = {
   href?: string;
 };
 
+export type ItemHeroMetric = {
+  label: string;
+  value: string;
+  fallback?: string;
+};
+
 export function getMetadataDisplayRows(
   template: PipelineTemplate,
   metadata: unknown,
@@ -153,4 +159,46 @@ export function getDeadlineDisplay(metadata: unknown): string | null {
   if (!metadata || typeof metadata !== "object") return null;
   const m = metadata as GradMetadata;
   return m.deadline ?? null;
+}
+
+export function getItemHeroMetric(
+  template: PipelineTemplate,
+  metadata: unknown,
+): ItemHeroMetric {
+  switch (template) {
+    case "JOB_SEARCH": {
+      const value = getSalaryDisplay(metadata);
+      return {
+        label: "Salary",
+        value: value ?? "—",
+        fallback: "Add salary in details",
+      };
+    }
+    case "SALES": {
+      const value = getDealValueDisplay(metadata);
+      return {
+        label: "Deal value",
+        value: value ?? "—",
+        fallback: "Add deal value in details",
+      };
+    }
+    case "GRAD_SCHOOL": {
+      const value = getDeadlineDisplay(metadata);
+      return {
+        label: "Deadline",
+        value: value ?? "—",
+        fallback: "Add deadline in details",
+      };
+    }
+    case "INVESTMENTS": {
+      const value = getInvestmentDisplay(metadata);
+      return {
+        label: "Value",
+        value: value ?? "—",
+        fallback: "Add investment value in details",
+      };
+    }
+    default:
+      return { label: "Status", value: "—" };
+  }
 }

@@ -53,70 +53,69 @@
 }
 
 /*
- * shadcn semantic tokens — unlayered so they override any defaults.
- * Values point at Transit theme tokens from design-system.
+ * shadcn semantic tokens — mapped to Transit design-system variables.
  */
 :root {
-  --background: #ffffff;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #1bd974;
-  --primary-foreground: #052e16;
-  --secondary: #f4f7fa;
-  --secondary-foreground: #0f172a;
-  --muted: #f4f7fa;
-  --muted-foreground: #64748b;
-  --accent: #1bd974;
-  --accent-foreground: #052e16;
-  --destructive: #e51304;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #1bd974;
-  --chart-1: #2563eb;
-  --chart-2: #22c55e;
-  --chart-3: #f97316;
-  --chart-4: #9333ea;
-  --chart-5: #ec4899;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #0f172a;
-  --sidebar-primary: #1bd974;
-  --sidebar-primary-foreground: #052e16;
-  --sidebar-accent: #f4f7fa;
-  --sidebar-accent-foreground: #0f172a;
-  --sidebar-border: #e2e8f0;
-  --sidebar-ring: #1bd974;
+  --background: var(--color-background);
+  --foreground: var(--color-foreground);
+  --card: var(--color-card);
+  --card-foreground: var(--color-card-foreground);
+  --popover: var(--color-card);
+  --popover-foreground: var(--color-card-foreground);
+  --primary: var(--color-brand-primary);
+  --primary-foreground: var(--color-brand-primary-foreground);
+  --secondary: var(--color-background-subtle);
+  --secondary-foreground: var(--color-foreground);
+  --muted: var(--color-background-subtle);
+  --muted-foreground: var(--color-foreground-muted);
+  --accent: var(--color-brand-primary);
+  --accent-foreground: var(--color-brand-primary-foreground);
+  --destructive: var(--color-semantic-destructive);
+  --border: var(--color-border);
+  --input: var(--color-border);
+  --ring: var(--color-ring);
+  --chart-1: var(--color-route-blue);
+  --chart-2: var(--color-route-green);
+  --chart-3: var(--color-route-orange);
+  --chart-4: var(--color-route-purple);
+  --chart-5: var(--color-route-pink);
+  --sidebar: var(--color-card);
+  --sidebar-foreground: var(--color-foreground);
+  --sidebar-primary: var(--color-brand-primary);
+  --sidebar-primary-foreground: var(--color-brand-primary-foreground);
+  --sidebar-accent: var(--color-background-subtle);
+  --sidebar-accent-foreground: var(--color-foreground);
+  --sidebar-border: var(--color-border);
+  --sidebar-ring: var(--color-ring);
 }
 
 .dark {
-  --background: #0a0e17;
-  --foreground: #f1f5f9;
-  --card: #151c2c;
-  --card-foreground: #f8fafc;
-  --popover: #151c2c;
-  --popover-foreground: #f8fafc;
-  --primary: #1bd974;
-  --primary-foreground: #052e16;
-  --secondary: #111827;
-  --secondary-foreground: #f1f5f9;
-  --muted: #111827;
-  --muted-foreground: #94a3b8;
-  --accent: #1bd974;
-  --accent-foreground: #052e16;
-  --destructive: #e51304;
-  --border: #1e293b;
-  --input: #1e293b;
-  --ring: #34d399;
-  --sidebar: #151c2c;
-  --sidebar-foreground: #f1f5f9;
-  --sidebar-primary: #1bd974;
-  --sidebar-primary-foreground: #052e16;
-  --sidebar-accent: #111827;
-  --sidebar-accent-foreground: #f1f5f9;
-  --sidebar-border: #1e293b;
-  --sidebar-ring: #34d399;
+  --background: var(--color-background);
+  --foreground: var(--color-foreground);
+  --card: var(--color-card);
+  --card-foreground: var(--color-card-foreground);
+  --popover: var(--color-card);
+  --popover-foreground: var(--color-card-foreground);
+  --primary: var(--color-brand-primary);
+  --primary-foreground: var(--color-brand-primary-foreground);
+  --secondary: var(--color-background-subtle);
+  --secondary-foreground: var(--color-foreground);
+  --muted: var(--color-background-subtle);
+  --muted-foreground: var(--color-foreground-muted);
+  --accent: var(--color-brand-primary);
+  --accent-foreground: var(--color-brand-primary-foreground);
+  --destructive: var(--color-semantic-destructive);
+  --border: var(--color-border);
+  --input: var(--color-border);
+  --ring: var(--color-ring);
+  --sidebar: var(--color-card);
+  --sidebar-foreground: var(--color-foreground);
+  --sidebar-primary: var(--color-brand-primary);
+  --sidebar-primary-foreground: var(--color-brand-primary-foreground);
+  --sidebar-accent: var(--color-background-subtle);
+  --sidebar-accent-foreground: var(--color-foreground);
+  --sidebar-border: var(--color-border);
+  --sidebar-ring: var(--color-ring);
 }
 
 @layer base {

@@ -17,14 +17,14 @@ export default async function HomePage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight lg:text-3xl">
             Welcome back, {firstName}
           </h1>
           <p className="text-muted-foreground">
             Track jobs, applications, and opportunities — all in one place.
           </p>
         </div>
-        <Link href="/pipelines/new" className={cn(buttonVariants(), "gap-1.5")}>
+        <Link href="/pipelines/new" className={cn(buttonVariants(), "hidden gap-1.5 lg:inline-flex")}>
           <Plus className="size-4" />
           New pipeline
         </Link>
@@ -44,7 +44,7 @@ export default async function HomePage() {
           </Link>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {pipelines.map((pipeline) => {
             const activeCount = pipeline.items.filter(
               (item) => !item.currentStage.isTerminal,

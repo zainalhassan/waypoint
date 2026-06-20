@@ -24,22 +24,15 @@ const SORT_OPTIONS: { value: PipelineItemSort; label: string }[] = [
   { value: "stage", label: "Stage order" },
 ];
 
-export function PipelineItemFilters({ stages, current }: PipelineItemFiltersProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  function updateParams(updates: Record<string, string | undefined>) {
-    const params = new URLSearchParams(searchParams.toString());
-    for (const [key, value] of Object.entries(updates)) {
-      if (value) params.set(key, value);
-      else params.delete(key);
-    }
-    router.replace(`${pathname}?${params.toString()}`);
-  }
-
+function FilterFields({
+  stages,
+  current,
+  updateParams,
+}: PipelineItemFiltersProps & {
+  updateParams: (updates: Record<string, string | undefined>) => void;
+}) {
   return (
-    <div className="flex flex-col gap-4 rounded-lg border bg-card p-4 sm:flex-row sm:flex-wrap sm:items-end">
+    <>
       <div className="min-w-[200px] flex-1 space-y-2">
         <Label htmlFor="item-search">Search</Label>
         <Input
@@ -99,6 +92,46 @@ export function PipelineItemFilters({ stages, current }: PipelineItemFiltersProp
           </button>
         ))}
       </div>
-    </div>
+    </>
+  );
+}
+
+export function PipelineItemFilters({ stages, current }: PipelineItemFiltersProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  function updateParams(updates: Record<string, string | undefined>) {
+    const params = new URLSearchParams(searchParams.toString());
+    for (const [key, value] of Object.entries(updates)) {
+      if (value) params.set(key, value);
+      else params.delete(key);
+    }
+    router.replace(`${pathname}?${params.toString()}`);
+  }
+
+  return (
+    <>
+      <details className="rounded-[var(--radius-card)] border bg-card lg:hidden">
+        <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+          Filters & view
+        </summary>
+        <div className="flex flex-col gap-4 border-t px-4 py-4">
+          <FilterFields
+            stages={stages}
+            current={current}
+            updateParams={updateParams}
+          />
+        </div>
+      </details>
+
+      <div className="hidden flex-wrap items-end gap-4 rounded-[var(--radius-card)] border bg-card p-4 lg:flex">
+        <FilterFields
+          stages={stages}
+          current={current}
+          updateParams={updateParams}
+        />
+      </div>
+    </>
   );
 }
