@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth";
 import { getUserPipelines } from "@/lib/pipelines/createPipelineFromTemplate";
 import { getUserById } from "@/lib/user";
 import { PipelineCard } from "@/components/PipelineCard";
+import { EmptyState } from "@/components/transit/EmptyState";
+import { PageHeader } from "@/components/transit/PageHeader";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -15,34 +17,25 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight lg:text-3xl">
-            Welcome back, {firstName}
-          </h1>
-          <p className="text-muted-foreground">
-            Track jobs, applications, and opportunities — all in one place.
-          </p>
-        </div>
+      <PageHeader
+        title={`Welcome back, ${firstName}`}
+        description="Track jobs, applications, and opportunities — all in one place."
+      >
         <Link href="/pipelines/new" className={cn(buttonVariants(), "hidden gap-1.5 lg:inline-flex")}>
           <Plus className="size-4" />
           New pipeline
         </Link>
-      </div>
+      </PageHeader>
 
       {pipelines.length === 0 ? (
-        <div className="rounded-lg border border-dashed p-12 text-center">
-          <p className="font-medium">Get started with your first pipeline</p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Pick a template for job search, grad school, or sales — then add items as you go.
-          </p>
-          <Link
-            href="/pipelines/new"
-            className={cn(buttonVariants(), "mt-6 inline-flex")}
-          >
+        <EmptyState
+          title="Get started with your first pipeline"
+          description="Pick a template for job search, grad school, or sales — then add items as you go."
+        >
+          <Link href="/pipelines/new" className={cn(buttonVariants())}>
             Create your first pipeline
           </Link>
-        </div>
+        </EmptyState>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {pipelines.map((pipeline) => {

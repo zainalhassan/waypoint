@@ -1,8 +1,10 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { buildSyncPreview } from "@/lib/templates/syncPreview";
 import { TemplateSyncWizard } from "@/components/TemplateSyncWizard";
+import { PageHeader } from "@/components/transit/PageHeader";
+import { TransitBanner } from "@/components/transit/TransitBanner";
+
 export default async function TemplateSyncPage({
   params,
 }: {
@@ -26,22 +28,23 @@ export default async function TemplateSyncPage({
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <Link href="/templates" className="text-sm text-muted-foreground hover:text-foreground">
-          ← Back to templates
-        </Link>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Sync template</h1>
-        <p className="text-muted-foreground">
-          Match <span className="font-medium">{preview.templateName}</span> with updates from{" "}
-          <span className="font-medium">{preview.sourceName}</span>.
-        </p>
-      </div>
+      <PageHeader
+        title="Sync template"
+        description={
+          <>
+            Match <span className="font-medium">{preview.templateName}</span> with updates from{" "}
+            <span className="font-medium">{preview.sourceName}</span>.
+          </>
+        }
+        backHref="/templates"
+        backLabel="Templates"
+      />
 
       {preview.pendingSourceSync && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100">
+        <TransitBanner variant="warning">
           The author updated this template. Review the changes before applying — especially if
           stages with your data were removed.
-        </div>
+        </TransitBanner>
       )}
 
       <TemplateSyncWizard preview={preview} />

@@ -111,7 +111,10 @@ export function UserTemplateForm({ mode, templateId, initial }: UserTemplateForm
           Define the steps in order. Mark entry and terminal stages as needed.
         </p>
         {stages.map((stage, index) => (
-          <div key={stage.id} className="flex flex-wrap items-end gap-2 rounded-lg border p-3">
+          <div
+            key={stage.id}
+            className="flex flex-wrap items-end gap-2 rounded-[var(--radius-button)] border border-border p-3"
+          >
             <div className="min-w-[180px] flex-1 space-y-1">
               <Label htmlFor={`stage-${stage.id}`} className="text-xs">
                 Stage {index + 1}

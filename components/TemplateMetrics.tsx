@@ -1,36 +1,50 @@
 import { Copy, Heart, LayoutGrid, MessageCircle, Star } from "lucide-react";
 import type { TemplateMetrics as Metrics } from "@/lib/marketplace/metrics";
+import { StatCard } from "@/components/transit/StatCard";
 
 type TemplateMetricsProps = {
   metrics: Metrics;
   compact?: boolean;
 };
 
+const STAT_COLORS = [
+  "var(--color-route-yellow)",
+  "var(--color-route-pink)",
+  "var(--color-route-blue)",
+  "var(--color-route-teal)",
+  "var(--color-route-indigo)",
+];
+
 export function TemplateMetrics({ metrics, compact }: TemplateMetricsProps) {
   const items = [
     {
+      label: "Rating",
+      value: metrics.averageRating !== null ? metrics.averageRating.toFixed(1) : "—",
       icon: Star,
-      label: metrics.averageRating !== null ? metrics.averageRating.toFixed(1) : "—",
       hint: metrics.ratingCount > 0 ? `${metrics.ratingCount} ratings` : "No ratings",
     },
     {
+      label: "Likes",
+      value: String(metrics.likeCount),
       icon: Heart,
-      label: String(metrics.likeCount),
       hint: "Likes",
     },
     {
+      label: "Copies",
+      value: String(metrics.copyCount),
       icon: Copy,
-      label: String(metrics.copyCount),
       hint: "Copies",
     },
     {
+      label: "Pipelines",
+      value: String(metrics.pipelineCount),
       icon: LayoutGrid,
-      label: String(metrics.pipelineCount),
       hint: "Pipelines using",
     },
     {
+      label: "Comments",
+      value: String(metrics.commentCount),
       icon: MessageCircle,
-      label: String(metrics.commentCount),
       hint: "Comments",
     },
   ];
@@ -38,10 +52,10 @@ export function TemplateMetrics({ metrics, compact }: TemplateMetricsProps) {
   if (compact) {
     return (
       <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-        {items.map(({ icon: Icon, label, hint }) => (
+        {items.map(({ icon: Icon, value, hint }) => (
           <span key={hint} className="inline-flex items-center gap-1" title={hint}>
             <Icon className="size-3.5" />
-            {label}
+            {value}
           </span>
         ))}
       </div>
@@ -49,15 +63,14 @@ export function TemplateMetrics({ metrics, compact }: TemplateMetricsProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      {items.map(({ icon: Icon, label, hint }) => (
-        <div key={hint} className="rounded-lg border bg-muted/20 px-3 py-2">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Icon className="size-3.5" />
-            {hint}
-          </div>
-          <p className="mt-1 text-lg font-semibold">{label}</p>
-        </div>
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      {items.map(({ label, value, hint }, index) => (
+        <StatCard
+          key={hint}
+          label={label}
+          value={value}
+          headerColor={STAT_COLORS[index % STAT_COLORS.length]}
+        />
       ))}
     </div>
   );

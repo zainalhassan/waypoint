@@ -14,6 +14,7 @@ import {
 import { DealValueFields } from "@/components/DealValueFields";
 import { InvestmentFields } from "@/components/InvestmentFields";
 import { SalaryFields } from "@/components/SalaryFields";
+import { SectionCard } from "@/components/transit/SectionCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -76,8 +77,7 @@ export function ItemForm({
 
   return (
     <form action={formAction} className="max-w-lg space-y-6">
-      <fieldset className="space-y-4">
-        <legend className="text-sm font-medium">Basics</legend>
+      <SectionCard title="Basics" headerColor="var(--color-route-blue)">
         <div className="space-y-2">
           <Label htmlFor="title">Title *</Label>
           <Input
@@ -111,11 +111,10 @@ export function ItemForm({
             />
           </div>
         )}
-      </fieldset>
+      </SectionCard>
 
       {metadataFields.length > 0 && (
-        <fieldset className="space-y-4">
-          <legend className="text-sm font-medium">Details</legend>
+        <SectionCard title="Details" headerColor="var(--color-route-teal)">
           {metadataFields.map((field) => (
             <div key={field.name} className="space-y-2">
               <Label htmlFor={`metadata.${field.name}`}>{field.label}</Label>
@@ -131,37 +130,42 @@ export function ItemForm({
               )}
             </div>
           ))}
-        </fieldset>
+        </SectionCard>
       )}
 
       {showSalary && (
-        <SalaryFields
-          defaultCurrency={defaultCurrency}
-          salaryMin={metadataValue(meta, "salaryMin")}
-          salaryMax={metadataValue(meta, "salaryMax")}
-          salaryCurrency={metadataValue(meta, "salaryCurrency") as string | undefined}
-        />
+        <SectionCard title="Compensation" headerColor="var(--color-route-yellow)">
+          <SalaryFields
+            defaultCurrency={defaultCurrency}
+            salaryMin={metadataValue(meta, "salaryMin")}
+            salaryMax={metadataValue(meta, "salaryMax")}
+            salaryCurrency={metadataValue(meta, "salaryCurrency") as string | undefined}
+          />
+        </SectionCard>
       )}
       {showDealValue && (
-        <DealValueFields
-          defaultCurrency={defaultCurrency}
-          dealValue={metadataValue(meta, "dealValue")}
-          dealCurrency={metadataValue(meta, "dealCurrency") as string | undefined}
-        />
+        <SectionCard title="Deal value" headerColor="var(--color-route-yellow)">
+          <DealValueFields
+            defaultCurrency={defaultCurrency}
+            dealValue={metadataValue(meta, "dealValue")}
+            dealCurrency={metadataValue(meta, "dealCurrency") as string | undefined}
+          />
+        </SectionCard>
       )}
       {showInvestment && (
-        <InvestmentFields
-          defaultCurrency={defaultCurrency}
-          assetType={metadataValue(meta, "assetType") as string | undefined}
-          ticker={metadataValue(meta, "ticker") as string | undefined}
-          amountInvested={metadataValue(meta, "amountInvested")}
-          currentValue={metadataValue(meta, "currentValue")}
-          currency={metadataValue(meta, "currency") as string | undefined}
-        />
+        <SectionCard title="Investment" headerColor="var(--color-route-indigo)">
+          <InvestmentFields
+            defaultCurrency={defaultCurrency}
+            assetType={metadataValue(meta, "assetType") as string | undefined}
+            ticker={metadataValue(meta, "ticker") as string | undefined}
+            amountInvested={metadataValue(meta, "amountInvested")}
+            currentValue={metadataValue(meta, "currentValue")}
+            currency={metadataValue(meta, "currency") as string | undefined}
+          />
+        </SectionCard>
       )}
 
-      <fieldset className="space-y-4">
-        <legend className="text-sm font-medium">Extras</legend>
+      <SectionCard title="Extras" headerColor="var(--color-route-purple)">
         <div className="space-y-2">
           <Label htmlFor="externalUrl">{urlLabels.label}</Label>
           <Input
@@ -182,7 +186,7 @@ export function ItemForm({
             defaultValue={initial?.notes ?? ""}
           />
         </div>
-      </fieldset>
+      </SectionCard>
 
       {state.error && (
         <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">

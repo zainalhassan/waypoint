@@ -3,6 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FilterPanel } from "@/components/transit/FilterPanel";
 
 type MarketplaceSearchProps = {
   currentQ?: string;
@@ -22,7 +23,7 @@ export function MarketplaceSearch({ currentQ, currentMinStages }: MarketplaceSea
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-lg border bg-card p-4 sm:flex-row sm:items-end">
+    <FilterPanel title="Search marketplace">
       <div className="min-w-[200px] flex-1 space-y-2">
         <Label htmlFor="marketplace-search">Search templates</Label>
         <Input
@@ -36,7 +37,7 @@ export function MarketplaceSearch({ currentQ, currentMinStages }: MarketplaceSea
         <Label htmlFor="min-stages">Min. stages</Label>
         <select
           id="min-stages"
-          className="flex h-9 min-w-[120px] rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+          className="flex h-10 min-w-[120px] rounded-[var(--radius-button)] border border-input bg-transparent px-3 py-1 text-sm"
           value={currentMinStages ?? ""}
           onChange={(e) => update("minStages", e.target.value)}
         >
@@ -46,6 +47,6 @@ export function MarketplaceSearch({ currentQ, currentMinStages }: MarketplaceSea
           <option value="7">7+</option>
         </select>
       </div>
-    </div>
+    </FilterPanel>
   );
 }

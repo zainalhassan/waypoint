@@ -4,10 +4,11 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { createPipeline, type ActionState } from "@/actions/pipelines";
 import { TEMPLATE_LIST } from "@/lib/pipelines/templates";
+import { EmptyState } from "@/components/transit/EmptyState";
+import { HeroCard } from "@/components/transit/HeroCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export type UserTemplateOption = {
   id: string;
@@ -22,6 +23,15 @@ type CreatePipelineFormProps = {
 
 const initialState: ActionState = {};
 
+const BUILTIN_COLORS = [
+  "var(--color-route-blue)",
+  "var(--color-route-purple)",
+  "var(--color-route-teal)",
+  "var(--color-route-pink)",
+  "var(--color-route-yellow)",
+  "var(--color-route-indigo)",
+];
+
 export function CreatePipelineForm({ userTemplates }: CreatePipelineFormProps) {
   const [state, formAction, pending] = useActionState(createPipeline, initialState);
 
@@ -35,8 +45,8 @@ export function CreatePipelineForm({ userTemplates }: CreatePipelineFormProps) {
       <div className="space-y-3">
         <Label>Built-in templates</Label>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {TEMPLATE_LIST.map((template) => (
-            <label key={template.template} className="cursor-pointer">
+          {TEMPLATE_LIST.map((template, index) => (
+            <label key={template.template} className="block cursor-pointer">
               <input
                 type="radio"
                 name="source"
@@ -45,17 +55,17 @@ export function CreatePipelineForm({ userTemplates }: CreatePipelineFormProps) {
                 required={userTemplates.length === 0}
                 defaultChecked={template.template === "JOB_SEARCH"}
               />
-              <Card className="peer-checked:border-primary peer-checked:ring-2 peer-checked:ring-primary/20">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">{template.label}</CardTitle>
-                  <CardDescription className="text-xs">
-                    {template.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="text-xs text-muted-foreground">
-                  {template.stages.map((s) => s.name).join(" → ")}
-                </CardContent>
-              </Card>
+              <HeroCard
+                headerLabel={template.label}
+                headerColor={BUILTIN_COLORS[index % BUILTIN_COLORS.length]}
+                heroLabel="Stages"
+                heroValue={String(template.stages.length)}
+                meta={[
+                  template.description,
+                  template.stages.map((s) => s.name).join(" → "),
+                ]}
+                className="peer-checked:is-selected transition-transform active:scale-[0.99]"
+              />
             </label>
           ))}
         </div>
@@ -66,42 +76,44 @@ export function CreatePipelineForm({ userTemplates }: CreatePipelineFormProps) {
           <Label>Your templates</Label>
           <Link
             href="/templates/new"
-            className="text-sm text-primary hover:underline"
+            className="text-sm font-medium text-primary hover:underline"
           >
             Create template
           </Link>
         </div>
         {userTemplates.length === 0 ? (
-          <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
-            No custom templates yet.{" "}
-            <Link href="/templates/new" className="text-primary hover:underline">
-              Create one
-            </Link>{" "}
-            with your own stages, then start a pipeline from it.
-          </p>
+          <EmptyState
+            title="No custom templates yet"
+            description={
+              <>
+                <Link href="/templates/new" className="font-medium text-primary hover:underline">
+                  Create one
+                </Link>{" "}
+                with your own stages, then start a pipeline from it.
+              </>
+            }
+          />
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
-            {userTemplates.map((template) => (
-              <label key={template.id} className="cursor-pointer">
+            {userTemplates.map((template, index) => (
+              <label key={template.id} className="block cursor-pointer">
                 <input
                   type="radio"
                   name="source"
                   value={`user:${template.id}`}
                   className="peer sr-only"
                 />
-                <Card className="peer-checked:border-primary peer-checked:ring-2 peer-checked:ring-primary/20">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">{template.name}</CardTitle>
-                    {template.description && (
-                      <CardDescription className="text-xs">
-                        {template.description}
-                      </CardDescription>
-                    )}
-                  </CardHeader>
-                  <CardContent className="text-xs text-muted-foreground">
-                    {template.stageNames.join(" → ")}
-                  </CardContent>
-                </Card>
+                <HeroCard
+                  headerLabel={template.name}
+                  headerColor={BUILTIN_COLORS[(index + 3) % BUILTIN_COLORS.length]}
+                  heroLabel="Stages"
+                  heroValue={String(template.stageNames.length)}
+                  meta={[
+                    ...(template.description ? [template.description] : []),
+                    template.stageNames.join(" → "),
+                  ]}
+                  className="peer-checked:is-selected transition-transform active:scale-[0.99]"
+                />
               </label>
             ))}
           </div>

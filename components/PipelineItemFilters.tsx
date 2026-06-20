@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Stage } from "@prisma/client";
 import type { PipelineItemSort } from "@/lib/pipelines/itemFilters";
+import { FilterPanel } from "@/components/transit/FilterPanel";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -24,15 +26,22 @@ const SORT_OPTIONS: { value: PipelineItemSort; label: string }[] = [
   { value: "stage", label: "Stage order" },
 ];
 
-function FilterFields({
-  stages,
-  current,
-  updateParams,
-}: PipelineItemFiltersProps & {
-  updateParams: (updates: Record<string, string | undefined>) => void;
-}) {
+export function PipelineItemFilters({ stages, current }: PipelineItemFiltersProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  function updateParams(updates: Record<string, string | undefined>) {
+    const params = new URLSearchParams(searchParams.toString());
+    for (const [key, value] of Object.entries(updates)) {
+      if (value) params.set(key, value);
+      else params.delete(key);
+    }
+    router.replace(`${pathname}?${params.toString()}`);
+  }
+
   return (
-    <>
+    <FilterPanel title="Filters & view">
       <div className="min-w-[200px] flex-1 space-y-2">
         <Label htmlFor="item-search">Search</Label>
         <Input
@@ -46,7 +55,7 @@ function FilterFields({
         <Label htmlFor="item-stage">Stage</Label>
         <select
           id="item-stage"
-          className="flex h-9 min-w-[140px] rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+          className="flex h-10 min-w-[140px] rounded-[var(--radius-button)] border border-input bg-transparent px-3 py-1 text-sm"
           value={current.stage ?? ""}
           onChange={(e) => updateParams({ stage: e.target.value || undefined })}
         >
@@ -64,7 +73,7 @@ function FilterFields({
         <Label htmlFor="item-sort">Sort</Label>
         <select
           id="item-sort"
-          className="flex h-9 min-w-[160px] rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+          className="flex h-10 min-w-[160px] rounded-[var(--radius-button)] border border-input bg-transparent px-3 py-1 text-sm"
           value={current.sort}
           onChange={(e) => updateParams({ sort: e.target.value })}
         >
@@ -75,13 +84,13 @@ function FilterFields({
           ))}
         </select>
       </div>
-      <div className="flex gap-1 rounded-lg border p-1">
+      <div className="flex gap-1 rounded-[var(--radius-button)] border border-border p-1">
         {(["table", "board"] as const).map((view) => (
           <button
             key={view}
             type="button"
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm capitalize transition-colors",
+              "rounded-[calc(var(--radius-button)-4px)] px-3 py-2 text-sm capitalize transition-colors",
               current.view === view
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:bg-muted",
@@ -92,46 +101,6 @@ function FilterFields({
           </button>
         ))}
       </div>
-    </>
-  );
-}
-
-export function PipelineItemFilters({ stages, current }: PipelineItemFiltersProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  function updateParams(updates: Record<string, string | undefined>) {
-    const params = new URLSearchParams(searchParams.toString());
-    for (const [key, value] of Object.entries(updates)) {
-      if (value) params.set(key, value);
-      else params.delete(key);
-    }
-    router.replace(`${pathname}?${params.toString()}`);
-  }
-
-  return (
-    <>
-      <details className="rounded-[var(--radius-card)] border bg-card lg:hidden">
-        <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold [&::-webkit-details-marker]:hidden">
-          Filters & view
-        </summary>
-        <div className="flex flex-col gap-4 border-t px-4 py-4">
-          <FilterFields
-            stages={stages}
-            current={current}
-            updateParams={updateParams}
-          />
-        </div>
-      </details>
-
-      <div className="hidden flex-wrap items-end gap-4 rounded-[var(--radius-card)] border bg-card p-4 lg:flex">
-        <FilterFields
-          stages={stages}
-          current={current}
-          updateParams={updateParams}
-        />
-      </div>
-    </>
+    </FilterPanel>
   );
 }

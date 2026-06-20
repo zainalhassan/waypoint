@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { TemplateMetrics } from "@/components/TemplateMetrics";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { TemplateMetrics as Metrics } from "@/lib/marketplace/metrics";
+import { HeroCard } from "@/components/transit/HeroCard";
 
 type MarketplaceTemplateCardProps = {
   id: string;
@@ -9,7 +8,7 @@ type MarketplaceTemplateCardProps = {
   description: string | null;
   authorName: string;
   stageNames: string[];
-  metrics: Metrics;
+  metrics: import("@/lib/marketplace/metrics").TemplateMetrics;
 };
 
 export function MarketplaceTemplateCard({
@@ -20,21 +19,24 @@ export function MarketplaceTemplateCard({
   stageNames,
   metrics,
 }: MarketplaceTemplateCardProps) {
+  const rating =
+    metrics.averageRating !== null ? metrics.averageRating.toFixed(1) : "—";
+
   return (
-    <Link href={`/marketplace/${id}`}>
-      <Card className="h-full transition-colors hover:border-primary/40 hover:bg-muted/30">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">{name}</CardTitle>
-          <CardDescription>by {authorName}</CardDescription>
-          {description && (
-            <p className="line-clamp-2 text-sm text-muted-foreground">{description}</p>
-          )}
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <p className="text-xs text-muted-foreground">{stageNames.join(" → ")}</p>
-          <TemplateMetrics metrics={metrics} compact />
-        </CardContent>
-      </Card>
+    <Link href={`/marketplace/${id}`} className="block transition-transform active:scale-[0.99]">
+      <HeroCard
+        headerLabel={authorName}
+        headerColor="var(--color-route-purple)"
+        heroLabel="Rating"
+        heroValue={rating}
+        meta={[
+          name,
+          ...(description ? [description] : []),
+          `${stageNames.length} stages · ${metrics.copyCount} copies`,
+        ]}
+      >
+        <TemplateMetrics metrics={metrics} compact />
+      </HeroCard>
     </Link>
   );
 }

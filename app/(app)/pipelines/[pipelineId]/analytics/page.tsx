@@ -11,7 +11,9 @@ import { DurationAnalyticsPanel } from "@/components/DurationAnalyticsPanel";
 import { InvestmentBreakdown } from "@/components/InvestmentBreakdown";
 import { PipelineExportButton } from "@/components/PipelineExportButton";
 import { SankeyChart } from "@/components/SankeyChart";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/transit/PageHeader";
+import { SectionCard } from "@/components/transit/SectionCard";
+import { StatCard } from "@/components/transit/StatCard";
 
 export default async function AnalyticsPage({
   params,
@@ -50,62 +52,42 @@ export default async function AnalyticsPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <Link
-            href={`/pipelines/${pipelineId}`}
-            className="text-sm text-muted-foreground hover:text-foreground"
-          >
-            ← Back to {pipeline.name}
-          </Link>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight">Analytics</h1>
-        </div>
+      <PageHeader
+        title="Analytics"
+        description={pipeline.name}
+        backHref={`/pipelines/${pipelineId}`}
+        backLabel={pipeline.name}
+      >
         <PipelineExportButton pipelineId={pipelineId} />
-      </div>
+      </PageHeader>
 
       {isInvestments && (
         <InvestmentBreakdown items={pipeline.items} defaultCurrency={defaultCurrency} />
       )}
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total items
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-2xl font-semibold">{stats.total}</CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Active
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-2xl font-semibold">{stats.active}</CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              {stats.conversionLabel}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-2xl font-semibold">
-            {stats.conversionRate !== null ? `${stats.conversionRate}%` : "—"}
-          </CardContent>
-        </Card>
+        <StatCard
+          label="Total items"
+          value={stats.total}
+          headerColor="var(--color-route-blue)"
+        />
+        <StatCard
+          label="Active"
+          value={stats.active}
+          headerColor="var(--color-route-teal)"
+        />
+        <StatCard
+          label={stats.conversionLabel}
+          value={stats.conversionRate !== null ? `${stats.conversionRate}%` : "—"}
+          headerColor="var(--color-route-purple)"
+        />
       </div>
 
       <DurationAnalyticsPanel analytics={durationAnalytics} />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Stage flow</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <SankeyChart data={sankeyData} />
-        </CardContent>
-      </Card>
+      <SectionCard title="Stage flow" headerColor="var(--color-route-indigo)">
+        <SankeyChart data={sankeyData} />
+      </SectionCard>
     </div>
   );
 }

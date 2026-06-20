@@ -39,7 +39,7 @@ export function ItemBoard({ pipelineId, stages, items }: ItemBoardProps) {
         return (
           <div
             key={stage.id}
-            className="flex w-72 shrink-0 flex-col rounded-lg border bg-muted/20"
+            className="flex w-72 shrink-0 flex-col overflow-hidden rounded-[var(--radius-card)] border bg-muted/20"
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               e.preventDefault();
@@ -48,9 +48,12 @@ export function ItemBoard({ pipelineId, stages, items }: ItemBoardProps) {
               if (itemId) handleDrop(itemId, stage.id, fromStageId);
             }}
           >
-            <div className="flex items-center justify-between border-b px-3 py-2">
+            <div
+              className="flex items-center justify-between px-3 py-2"
+              style={{ backgroundColor: stage.color ?? "var(--color-brand-secondary)" }}
+            >
               <StageBadge name={stage.name} color={stage.color} />
-              <span className="text-xs text-muted-foreground">{columnItems.length}</span>
+              <span className="text-xs font-medium text-white/90">{columnItems.length}</span>
             </div>
             <div className="flex min-h-[120px] flex-col gap-2 p-2">
               {columnItems.map((item) => (
@@ -61,18 +64,20 @@ export function ItemBoard({ pipelineId, stages, items }: ItemBoardProps) {
                     e.dataTransfer.setData("text/item-id", item.id);
                     e.dataTransfer.setData("text/from-stage-id", item.currentStageId);
                   }}
-                  className="cursor-grab rounded-md border bg-card p-3 shadow-sm active:cursor-grabbing"
+                  className="transit-eta-card cursor-grab overflow-hidden shadow-sm active:cursor-grabbing"
                 >
-                  <Link
-                    href={`/pipelines/${pipelineId}/items/${item.id}`}
-                    className="font-medium hover:underline"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {item.title}
-                  </Link>
-                  {item.subtitle && (
-                    <p className="mt-1 text-xs text-muted-foreground">{item.subtitle}</p>
-                  )}
+                  <div className="transit-eta-card__body py-3">
+                    <Link
+                      href={`/pipelines/${pipelineId}/items/${item.id}`}
+                      className="font-semibold hover:underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {item.title}
+                    </Link>
+                    {item.subtitle && (
+                      <p className="mt-1 text-xs text-muted-foreground">{item.subtitle}</p>
+                    )}
+                  </div>
                 </div>
               ))}
               {columnItems.length === 0 && (

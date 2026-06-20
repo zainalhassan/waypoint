@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/transit/EmptyState";
 
 export default function AppError({
   error,
@@ -15,14 +16,14 @@ export default function AppError({
   }, [error]);
 
   return (
-    <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4 text-center">
-      <h2 className="text-lg font-semibold">Something went wrong</h2>
-      <p className="max-w-md text-sm text-muted-foreground">
-        An unexpected error occurred. Try again or return to your pipelines.
-      </p>
+    <EmptyState
+      title="Something went wrong"
+      description="An unexpected error occurred. Try again or return to your pipelines."
+      className="min-h-[40vh] justify-center"
+    >
       <Button type="button" onClick={reset}>
         Try again
       </Button>
-    </div>
+    </EmptyState>
   );
 }

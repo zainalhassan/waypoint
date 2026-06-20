@@ -10,6 +10,7 @@ import {
 import { PIPELINE_TEMPLATES } from "@/lib/pipelines/templates";
 import { ItemBoard } from "@/components/ItemBoard";
 import { ItemMobileList } from "@/components/transit/ItemMobileList";
+import { PageHeader } from "@/components/transit/PageHeader";
 import { ItemTable } from "@/components/ItemTable";
 import { PipelineItemFilters } from "@/components/PipelineItemFilters";
 import { PipelineSettings } from "@/components/PipelineSettings";
@@ -48,30 +49,31 @@ export default async function PipelinePage({
 
   return (
     <div className="space-y-4 lg:space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-sm text-muted-foreground">{definition.label}</p>
-          <h1 className="text-2xl font-bold tracking-tight lg:text-3xl">{pipeline.name}</h1>
-          <p className="mt-1 text-sm text-muted-foreground lg:hidden">
-            {activeCount} active · {filteredItems.length} shown
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <PipelineSettings pipelineId={pipelineId} name={pipeline.name} />
-          <Link
-            href={`/pipelines/${pipelineId}/analytics`}
-            className={buttonVariants({ variant: "outline", size: "sm" })}
-          >
-            Analytics
-          </Link>
-          <Link
-            href={`/pipelines/${pipelineId}/items/new`}
-            className={buttonVariants({ size: "sm" })}
-          >
-            Add item
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        title={pipeline.name}
+        description={
+          <>
+            <span className="lg:hidden">
+              {activeCount} active · {filteredItems.length} shown
+            </span>
+            <span className="hidden lg:inline">{definition.label}</span>
+          </>
+        }
+      >
+        <PipelineSettings pipelineId={pipelineId} name={pipeline.name} />
+        <Link
+          href={`/pipelines/${pipelineId}/analytics`}
+          className={buttonVariants({ variant: "outline", size: "sm" })}
+        >
+          Analytics
+        </Link>
+        <Link
+          href={`/pipelines/${pipelineId}/items/new`}
+          className={buttonVariants({ size: "sm" })}
+        >
+          Add item
+        </Link>
+      </PageHeader>
 
       <Suspense fallback={null}>
         <PipelineItemFilters

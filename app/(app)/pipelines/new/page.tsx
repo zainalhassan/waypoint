@@ -1,6 +1,8 @@
 import { auth } from "@/lib/auth";
 import { getUserTemplates } from "@/lib/pipelines/createPipelineFromUserTemplate";
 import { CreatePipelineForm } from "@/components/CreatePipelineForm";
+import { PageHeader } from "@/components/transit/PageHeader";
+import { SectionCard } from "@/components/transit/SectionCard";
 
 export default async function NewPipelinePage() {
   const session = await auth();
@@ -15,13 +17,13 @@ export default async function NewPipelinePage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">New pipeline</h1>
-        <p className="text-muted-foreground">
-          Pick a built-in template or one of your own custom stage flows.
-        </p>
-      </div>
-      <CreatePipelineForm userTemplates={userTemplates} />
+      <PageHeader
+        title="New pipeline"
+        description="Pick a built-in template or one of your own custom stage flows."
+      />
+      <SectionCard title="Pipeline setup" headerColor="var(--color-brand-primary)">
+        <CreatePipelineForm userTemplates={userTemplates} />
+      </SectionCard>
     </div>
   );
 }

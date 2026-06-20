@@ -6,10 +6,22 @@ import { DeleteTemplateButton } from "@/components/DeleteTemplateButton";
 import { PublishTemplateButton } from "@/components/PublishTemplateButton";
 import { TemplateLinkActions } from "@/components/TemplateLinkActions";
 import { TemplateMetrics } from "@/components/TemplateMetrics";
+import { EmptyState } from "@/components/transit/EmptyState";
+import { HeroCard } from "@/components/transit/HeroCard";
+import { PageHeader } from "@/components/transit/PageHeader";
+import { TransitBanner } from "@/components/transit/TransitBanner";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+
+const HEADER_COLORS = [
+  "var(--color-route-blue)",
+  "var(--color-route-purple)",
+  "var(--color-route-teal)",
+  "var(--color-route-pink)",
+  "var(--color-route-yellow)",
+  "var(--color-route-indigo)",
+];
 
 export default async function TemplatesPage({
   searchParams,
@@ -22,86 +34,88 @@ export default async function TemplatesPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">My templates</h1>
-          <p className="text-muted-foreground">
+      <PageHeader
+        title="My templates"
+        description={
+          <>
             Reusable stage flows — share them on the{" "}
-            <Link href="/marketplace" className="text-primary hover:underline">
+            <Link href="/marketplace" className="font-medium text-primary hover:underline">
               marketplace
             </Link>
             .
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Link href="/marketplace" className={buttonVariants({ variant: "outline" })}>
-            Browse marketplace
-          </Link>
-          <Link href="/templates/new" className={buttonVariants()}>
-            New template
-          </Link>
-        </div>
-      </div>
+          </>
+        }
+      >
+        <Link href="/marketplace" className={buttonVariants({ variant: "outline" })}>
+          Browse marketplace
+        </Link>
+        <Link href="/templates/new" className={buttonVariants()}>
+          New template
+        </Link>
+      </PageHeader>
 
       {synced && (
-        <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900 dark:border-green-900 dark:bg-green-950 dark:text-green-100">
+        <TransitBanner>
           Template synced. Your pipelines were updated and items in removed stages were moved.
-        </div>
+        </TransitBanner>
       )}
 
       {copied && (
-        <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900 dark:border-green-900 dark:bg-green-950 dark:text-green-100">
+        <TransitBanner>
           {linked
             ? "Linked copy saved. It will stay in sync when the author updates the original — use Sync now anytime."
             : "Independent copy saved. You can edit it freely from your templates list."}
-        </div>
+        </TransitBanner>
       )}
 
       {templates.length === 0 ? (
-        <div className="rounded-lg border border-dashed p-10 text-center">
-          <p className="font-medium">No templates yet</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Create your own or{" "}
-            <Link href="/marketplace" className="text-primary hover:underline">
-              copy one from the marketplace
-            </Link>
-            .
-          </p>
-          <Link href="/templates/new" className={cn(buttonVariants(), "mt-4 inline-flex")}>
+        <EmptyState
+          title="No templates yet"
+          description={
+            <>
+              Create your own or{" "}
+              <Link href="/marketplace" className="font-medium text-primary hover:underline">
+                copy one from the marketplace
+              </Link>
+              .
+            </>
+          }
+        >
+          <Link href="/templates/new" className={cn(buttonVariants())}>
             Create your first template
           </Link>
-        </div>
+        </EmptyState>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
-          {templates.map((template) => (
-            <Card key={template.id}>
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="space-y-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <CardTitle className="text-base">{template.name}</CardTitle>
-                      {template.isPublic && <Badge variant="secondary">Public</Badge>}
-                      {template.isLinkedToSource && (
-                        <Badge variant="outline">Linked</Badge>
-                      )}
-                      {template.pendingSourceSync && (
-                        <Badge variant="destructive">Sync required</Badge>
-                      )}
-                      {template.forkedFromId && !template.isLinkedToSource && (
-                        <Badge variant="outline">Independent copy</Badge>
-                      )}
-                    </div>
-                    {template.description && (
-                      <CardDescription>{template.description}</CardDescription>
-                    )}
-                  </div>
-                  <DeleteTemplateButton templateId={template.id} />
+          {templates.map((template, index) => {
+            const statusBadges = [
+              template.isPublic && { label: "Public", variant: "secondary" as const },
+              template.isLinkedToSource && { label: "Linked", variant: "outline" as const },
+              template.pendingSourceSync && { label: "Sync required", variant: "destructive" as const },
+              template.forkedFromId &&
+                !template.isLinkedToSource && { label: "Independent copy", variant: "outline" as const },
+            ].filter(Boolean) as { label: string; variant: "secondary" | "outline" | "destructive" }[];
+
+            return (
+              <HeroCard
+                key={template.id}
+                headerLabel={template.isPublic ? "Published" : "Private"}
+                headerColor={HEADER_COLORS[index % HEADER_COLORS.length]}
+                heroLabel="Stages"
+                heroValue={String(template.stages.length)}
+                meta={[
+                  template.name,
+                  ...(template.description ? [template.description] : []),
+                  template.stages.map((s) => s.name).join(" → "),
+                ]}
+              >
+                <div className="flex flex-wrap gap-1.5">
+                  {statusBadges.map(({ label, variant }) => (
+                    <Badge key={label} variant={variant}>
+                      {label}
+                    </Badge>
+                  ))}
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  {template.stages.map((s) => s.name).join(" → ")}
-                </p>
                 {template.isPublic && (
                   <TemplateMetrics
                     metrics={toTemplateMetrics({
@@ -121,7 +135,7 @@ export default async function TemplatesPage({
                     {template._count.pipelines === 1 ? "" : "s"}
                   </p>
                 )}
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 pt-1">
                   <PublishTemplateButton
                     templateId={template.id}
                     isPublic={template.isPublic}
@@ -129,11 +143,12 @@ export default async function TemplatesPage({
                   {template.isPublic && (
                     <Link
                       href={`/marketplace/${template.id}`}
-                      className="text-sm text-primary hover:underline"
+                      className="text-sm font-medium text-primary hover:underline"
                     >
                       View on marketplace
                     </Link>
                   )}
+                  <DeleteTemplateButton templateId={template.id} />
                 </div>
                 <TemplateLinkActions
                   templateId={template.id}
@@ -142,9 +157,9 @@ export default async function TemplatesPage({
                   pendingSourceSync={template.pendingSourceSync}
                   sourceName={template.forkedFrom?.name}
                 />
-              </CardContent>
-            </Card>
-          ))}
+              </HeroCard>
+            );
+          })}
         </div>
       )}
     </div>

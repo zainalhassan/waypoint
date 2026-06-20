@@ -3,7 +3,8 @@ import { auth } from "@/lib/auth";
 import { getUserById } from "@/lib/user";
 import { ChangePasswordForm } from "@/components/settings/ChangePasswordForm";
 import { SettingsForm } from "@/components/settings/SettingsForm";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/transit/PageHeader";
+import { SectionCard } from "@/components/transit/SectionCard";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -14,38 +15,30 @@ export default async function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">
-          Manage your profile and preferences.
-        </p>
-      </div>
+      <PageHeader
+        title="Settings"
+        description="Manage your profile and preferences."
+      />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Profile & preferences</CardTitle>
-          <CardDescription>
-            Your default currency is pre-filled when you add salary or deal amounts.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <SettingsForm
-            name={user.name ?? ""}
-            email={user.email}
-            defaultCurrency={user.defaultCurrency}
-          />
-        </CardContent>
-      </Card>
+      <SectionCard
+        title="Profile & preferences"
+        description="Your default currency is pre-filled when you add salary or deal amounts."
+        headerColor="var(--color-route-blue)"
+      >
+        <SettingsForm
+          name={user.name ?? ""}
+          email={user.email}
+          defaultCurrency={user.defaultCurrency}
+        />
+      </SectionCard>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Password</CardTitle>
-          <CardDescription>Update your account password.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ChangePasswordForm />
-        </CardContent>
-      </Card>
+      <SectionCard
+        title="Password"
+        description="Update your account password."
+        headerColor="var(--color-route-purple)"
+      >
+        <ChangePasswordForm />
+      </SectionCard>
     </div>
   );
 }

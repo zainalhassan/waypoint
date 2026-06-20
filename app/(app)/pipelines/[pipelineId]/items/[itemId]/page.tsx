@@ -10,9 +10,9 @@ import { ItemActions } from "@/components/ItemActions";
 import { ItemMetadataDisplay } from "@/components/ItemMetadataDisplay";
 import { HeroCard } from "@/components/transit/HeroCard";
 import { MobileShell } from "@/components/transit/MobileShell";
+import { SectionCard } from "@/components/transit/SectionCard";
 import { StageTimeline } from "@/components/StageTimeline";
 import { StageUpdateForm } from "@/components/StageUpdateForm";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function ItemDetailPage({
   params,
@@ -72,12 +72,12 @@ export default async function ItemDetailPage({
   );
 
   const detailsCard = (
-    <Card className="rounded-[var(--radius-card)]">
-      <CardHeader>
-        <CardTitle>Details</CardTitle>
-        <CardDescription>Supporting information for this item</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4 text-sm">
+    <SectionCard
+      title="Details"
+      description="Supporting information for this item"
+      headerColor="var(--color-route-blue)"
+    >
+      <div className="space-y-4 text-sm">
         <ItemMetadataDisplay template={pipeline.template} metadata={item.metadata} />
         {item.externalUrl && (
           <p>
@@ -98,41 +98,35 @@ export default async function ItemDetailPage({
             <p className="whitespace-pre-wrap rounded-md bg-muted/30 p-3">{item.notes}</p>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </SectionCard>
   );
 
   const stageCard = (
-    <Card className="rounded-[var(--radius-card)]">
-      <CardHeader>
-        <CardTitle>Update stage</CardTitle>
-        <CardDescription>
-          Move this item as progress changes — each update is logged in your timeline.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <StageUpdateForm
-          pipelineId={pipelineId}
-          itemId={itemId}
-          stages={pipeline.stages.filter(
-            (s) => !s.isArchived || s.id === item.currentStageId,
-          )}
-          currentStageId={item.currentStageId}
-        />
-      </CardContent>
-    </Card>
+    <SectionCard
+      title="Update stage"
+      description="Move this item as progress changes — each update is logged in your timeline."
+      headerColor={item.currentStage.color ?? "var(--color-route-teal)"}
+    >
+      <StageUpdateForm
+        pipelineId={pipelineId}
+        itemId={itemId}
+        stages={pipeline.stages.filter(
+          (s) => !s.isArchived || s.id === item.currentStageId,
+        )}
+        currentStageId={item.currentStageId}
+      />
+    </SectionCard>
   );
 
   const timelineCard = (
-    <Card className="rounded-[var(--radius-card)]">
-      <CardHeader>
-        <CardTitle>Timeline</CardTitle>
-        <CardDescription>Every stage change you&apos;ve made</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <StageTimeline events={item.stageEvents} />
-      </CardContent>
-    </Card>
+    <SectionCard
+      title="Timeline"
+      description="Every stage change you've made"
+      headerColor="var(--color-route-purple)"
+    >
+      <StageTimeline events={item.stageEvents} />
+    </SectionCard>
   );
 
   return (

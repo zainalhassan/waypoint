@@ -5,6 +5,8 @@ import { getMarketplaceTemplates, parseMarketplaceSort } from "@/lib/marketplace
 import { MarketplaceSearch } from "@/components/MarketplaceSearch";
 import { MarketplaceSortTabs } from "@/components/MarketplaceSortTabs";
 import { MarketplaceTemplateCard } from "@/components/MarketplaceTemplateCard";
+import { EmptyState } from "@/components/transit/EmptyState";
+import { PageHeader } from "@/components/transit/PageHeader";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -24,17 +26,14 @@ export default async function MarketplacePage({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Template marketplace</h1>
-          <p className="text-muted-foreground">
-            Browse community templates, copy them to your account, and share your own.
-          </p>
-        </div>
+      <PageHeader
+        title="Template marketplace"
+        description="Browse community templates, copy them to your account, and share your own."
+      >
         <Link href="/templates/new" className={cn(buttonVariants({ variant: "outline" }))}>
           Create & share
         </Link>
-      </div>
+      </PageHeader>
 
       <Suspense fallback={null}>
         <MarketplaceSearch
@@ -43,19 +42,23 @@ export default async function MarketplacePage({
         />
       </Suspense>
 
-      <MarketplaceSortTabs current={sort} />
+      <Suspense fallback={null}>
+        <MarketplaceSortTabs current={sort} />
+      </Suspense>
 
       {templates.length === 0 ? (
-        <div className="rounded-lg border border-dashed p-10 text-center">
-          <p className="font-medium">No templates match your search</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Try different keywords or{" "}
-            <Link href="/marketplace" className="text-primary hover:underline">
-              clear filters
-            </Link>
-            .
-          </p>
-        </div>
+        <EmptyState
+          title="No templates match your search"
+          description={
+            <>
+              Try different keywords or{" "}
+              <Link href="/marketplace" className="font-medium text-primary hover:underline">
+                clear filters
+              </Link>
+              .
+            </>
+          }
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {templates.map((template) => (
@@ -67,7 +70,7 @@ export default async function MarketplacePage({
       {session?.user && (
         <p className="text-sm text-muted-foreground">
           Signed in as {session.user.name ?? session.user.email}. Publish templates from{" "}
-          <Link href="/templates" className="text-primary hover:underline">
+          <Link href="/templates" className="font-medium text-primary hover:underline">
             My templates
           </Link>
           .

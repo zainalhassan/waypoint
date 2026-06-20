@@ -1,10 +1,10 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { auth } from "@/lib/auth";
 import { getPipelineForUser } from "@/lib/pipelines/createPipelineFromTemplate";
 import { PIPELINE_TEMPLATES } from "@/lib/pipelines/templates";
 import { getUserDefaultCurrency } from "@/lib/user";
 import { ItemForm } from "@/components/ItemForm";
+import { PageHeader } from "@/components/transit/PageHeader";
+import { notFound } from "next/navigation";
+import { auth } from "@/lib/auth";
 
 export default async function NewItemPage({
   params,
@@ -21,19 +21,13 @@ export default async function NewItemPage({
   const definition = PIPELINE_TEMPLATES[pipeline.template];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <Link
-          href={`/pipelines/${pipelineId}`}
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          ← Back to {pipeline.name}
-        </Link>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Add item</h1>
-        <p className="text-muted-foreground">
-          Add a new entry to your {definition.label.toLowerCase()} pipeline.
-        </p>
-      </div>
+    <div className="mx-auto max-w-2xl space-y-6">
+      <PageHeader
+        title="Add item"
+        description={`Add a new entry to your ${definition.label.toLowerCase()} pipeline.`}
+        backHref={`/pipelines/${pipelineId}`}
+        backLabel={pipeline.name}
+      />
       <ItemForm
         pipelineId={pipelineId}
         template={pipeline.template}
