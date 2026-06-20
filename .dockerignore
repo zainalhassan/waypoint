@@ -5,6 +5,9 @@ node_modules
 .env
 .env.*
 !.env.example
+.env.prod
+.env.prod.*
+.env.prod.backup
 *.md
 !README.md
 .cursor
