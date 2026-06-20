@@ -33,7 +33,7 @@
     "@radix-ui/react-label": "^2.1.9",
     "@radix-ui/react-select": "^2.3.0",
     "@radix-ui/react-slot": "^1.2.5",
-    "@zainalhassan/design-system": "file:../design-system",
+    "@zainalhassan/design-system": "github:zainalhassan/design-system#main",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
